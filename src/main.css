@@ -1,0 +1,102 @@
+.btn.uwcs-signin {
+  background-color: #2D3338;
+  border: 0px solid transparent;
+  top: 0;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  color: rgba(255,255,255,0.87);
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.5);
+  color:var(--yellow);
+}
+
+:root {
+  --blue:#000000;
+  --yellow:#fdd835;
+}
+
+.btn.uwcs-signin:hover {
+  color: rgba(255,255,255,0.5);
+}
+
+.btn.uwcs-signin span {
+  margin-right:0.5rem;
+}
+
+.navbar-text {
+  margin-right:15px;
+}
+
+.navbar {
+  padding-right:7.5px;
+}
+
+aside.sidebar {
+  background-color:#2D3338;
+  padding-top: 15px;
+  display:flex;
+  flex-direction:column;
+}
+
+aside.sidebar .playlist {
+  flex-grow:1;
+}
+
+.sidebar .accordion {
+  margin-left:-15px;
+  margin-right:-15px;
+}
+
+.sidebar .accordion .card {
+  border-radius:0;
+}
+.sidebar .accordion .card-header {
+  background-color:rgba(255,255,255,0.05);
+  color:var(--yellow);
+  cursor:pointer;
+  padding:0;
+}
+.sidebar .accordion .card-header>* {
+  padding-bottom:12px;
+  padding-left:20px;
+  padding-right:20px;
+  padding-top:12px;
+  display:block;
+}
+
+#root {
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  background-color: #222528;
+}
+
+.navbar-brand {
+  font-family:'Jaapokki-Subtract';
+  font-size:2.5em;
+  padding:0;
+  line-height:1;
+  transform:translateY(0.125em);
+  color:#fdd835 !important;
+}
+
+main {
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  flex-grow:1;
+}
+
+@font-face {
+  font-family: 'Jaapokki-Subtract';
+  src: url(fonts/Jaapokkisubtract-Regular.otf);
+}
+
+.video, .video-wrapper {
+  height:100%;
+  overflow:hidden;
+}
+
+.video-wrapper {
+  margin-left:-15px;
+  margin-right:-15px;
+}
