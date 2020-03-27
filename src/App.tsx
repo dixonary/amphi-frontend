@@ -58,7 +58,10 @@ const NowPlayingText = () => {
   const [videoData, setVideoData] = useState<any>(null);
   
   useEffect(() => {
-    if(nowPlaying?.video === undefined) return;
+    if(nowPlaying?.video === undefined) {
+      setVideoData(undefined);
+      return;
+    };
     const getVideoData = async () => {
       const vidData = await firebase.database()
           .ref(`videos/${nowPlaying.video}`)
@@ -66,7 +69,7 @@ const NowPlayingText = () => {
       setVideoData(vidData.val());
     };
     getVideoData();
-  }, [nowPlaying?.video]);
+  });
 
   if(videoData === null || videoData === undefined) return (<></>);
   return (
