@@ -1,4 +1,4 @@
-.btn.uwcs-signin {
+.navbar .btn {
   background-color: #2D3338;
   border: 0px solid transparent;
   top: 0;
@@ -9,8 +9,30 @@
   color:var(--yellow);
 }
 
+.navbar .btn:not(.uwcs-signin) {
+  line-height:1;
+}
+
+.navbar .btn:not(:last-child) {
+  margin-right:15px;
+}
+
+.main-row {
+  overflow:hidden;
+  flex:1;
+}
+
+p.no-video {
+  position:absolute;
+  bottom:0;
+  left:0;
+  text-align:center;
+  display:block;
+  width:100%;
+}
+
 :root {
-  --blue:#000000;
+  --blue:#3d5afe;
   --yellow:#fdd835;
 }
 
@@ -32,30 +54,38 @@
 
 aside.sidebar {
   background-color:#2D3338;
-  padding-top: 15px;
   display:flex;
   flex-direction:column;
+  height:100%;
+  overflow:hidden;
 }
 
 aside.sidebar .playlist {
+  flex: 1 1;
+  flex-basis:0;
+}
+
+.sidebar {
+  padding:0;
+}
+
+.sidebar .full-queue {
   flex-grow:1;
+  flex-shrink:1;
+  overflow-y:auto;
 }
 
-.sidebar .accordion {
-  margin-left:-15px;
-  margin-right:-15px;
-}
-
-.sidebar .accordion .card {
+.sidebar .card, .sidebar .card-header {
   border-radius:0;
+  border:0;
 }
-.sidebar .accordion .card-header {
+.sidebar .card-header {
   background-color:rgba(255,255,255,0.05);
   color:var(--yellow);
   cursor:pointer;
   padding:0;
 }
-.sidebar .accordion .card-header>* {
+.sidebar .card-header>* {
   padding-bottom:12px;
   padding-left:20px;
   padding-right:20px;
@@ -64,7 +94,7 @@ aside.sidebar .playlist {
 }
 
 #root {
-  min-height:100vh;
+  height:100vh;
   display:flex;
   flex-direction:column;
   background-color: #222528;
@@ -84,6 +114,7 @@ main {
   flex-direction:column;
   align-items:stretch;
   flex-grow:1;
+  overflow:hidden;
 }
 
 @font-face {
@@ -99,4 +130,172 @@ main {
 .video-wrapper {
   margin-left:-15px;
   margin-right:-15px;
+}
+
+a.btn.icon-button {
+  line-height:1;
+  padding: 0.25rem 0.25rem;
+}
+
+a.btn.blocky {
+  border-radius:0;
+  display:block;
+}
+
+.sidebar .card-body {
+  padding:15px;
+  flex-basis: 0;
+  overflow-y: auto;
+}
+
+.sidebar .bucket {
+  border:1px solid #666;
+  border-radius:3px;
+  margin-bottom:7.5px;
+
+  margin-left:-2.5px;
+  margin-right:-2.5px;
+  padding:2.5px;
+}
+
+.sidebar .bucket:last-child {
+  margin-bottom:0;
+}
+
+.bucket .video-details:first-child{ 
+  margin-top: 0; 
+}
+
+.bucket .video-details:last-child{ 
+  margin-bottom: 0; 
+}
+
+.sidebar .video-details {
+  background-color:rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius:3px;
+  padding:7.5px;
+
+  min-height:2em;
+}
+
+.sidebar .video-details .channel-title {
+  margin-bottom:0;
+}
+
+.my-queue .card-body {
+  margin-bottom:-7.5px;
+}
+
+.video-details {
+  display:flex;
+  flex-direction: column;
+  font-size:0.8rem;
+  font-family:sans-serif;
+  margin-bottom:7.5px;
+  position:relative;
+}
+
+.video-details .info {
+  display:flex;
+  flex-direction:column;
+  flex-grow:1;
+  margin-top:7.5px;
+}
+
+.video-details img.thumbnail {
+  width:100%;
+  height:90px;
+  object-fit:cover;
+}
+
+.video-details .thumb-wrapper {
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+  height:0;
+}
+
+.video-details .duration {
+  position:absolute;
+  top:0;
+  right:0;
+  background-color:rgba(0,0,0,0.9);
+  padding:0 0.25rem;
+  font-weight:normal;
+  font-family:sans-serif;
+  font-size:0.8rem;
+}
+
+.video-details .title {
+  font-weight:bold;
+  margin-bottom:0;
+}
+
+.video-details p {
+  margin-bottom:7.5px;
+}
+
+
+.video-details .btn.delete {
+  visibility: hidden;
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  right:5px;
+  padding:7.5px;
+  color:var(--yellow);
+}
+.btn.delete.admin {
+  color:darkred;
+}
+.btn.delete.admin:active {
+  color:darkred;
+}
+.btn.delete:active {
+  color:var(--yellow);
+}
+.video-details:hover .btn.delete {
+  visibility: visible;
+}
+
+.btn.enqueue-video {
+  display:block;
+}
+
+p.now-playing {
+  margin-bottom:0;
+}
+
+
+/* Large or smaller!*/
+@media screen and (max-width:991px) {
+  .video-details {
+    flex-direction:row;
+    align-items:center;
+    margin-bottom:15px;
+  }
+  .video-details .thumb-wrapper {
+    width:160px;
+    height:90px;
+    padding-top:0;
+  }
+
+  .video-details .info {
+    margin-top:0;
+    margin-left:15px;
+  }
+
+  .video-details .channel-title {
+    margin-left:auto;
+  }
+
+  #root {
+    min-height:100vh;
+    height:unset;
+  }
+
+  .sidebar .card-body {
+    flex-basis:auto;
+  }
 }

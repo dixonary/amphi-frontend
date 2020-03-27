@@ -1,24 +1,18 @@
-import React, {Component, Fragment} from 'react';
+import React, { useContext, useRef } from 'react';
+import { useAsync } from "react-async";
+import { Spinner, Button, Navbar, Row, NavItem, Tooltip, OverlayTrigger, Overlay } from 'react-bootstrap';
 
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { SkipNext } from '@material-ui/icons';
+
 import firebase from 'firebase';
 
-import useFetch, { useAsync } from "react-async";
-import * as Querystring from 'querystring';
-
-import UWCSLogo from './uwcsLogo';
-
-import {Spinner, Button, Navbar, Row, NavItem} from 'react-bootstrap';
-
 import {
-  BrowserRouter as Router,
-  Route,
-  Link,
   Redirect,
   useLocation
 } from 'react-router-dom'
 
-import {Container} from 'react-bootstrap';
+import { AdminToolsContext } from './AdminToolsProvider';
+import UWCSLogo from './uwcsLogo';
 
 const AUTH_ENDPOINT    
   = "https://us-central1-amphi-compsoc.cloudfunctions.net/uwcsAuth";
@@ -65,13 +59,21 @@ const logout = () => {
 const UserBox = () => {
   // const [user, initialising] = [false, false];
   const [user, initializing] = useAuth();
+  const { isAdmin, playNextVideo } = useContext(AdminToolsContext);
+
   return (<Navbar.Collapse className="justify-content-end">
     { user
       ? (<>
         <Navbar.Text>
           Logged in as {(user as firebase.User).displayName}
+          {isAdmin ? " (Admin)" : ""}
         </Navbar.Text>
         <NavItem>
+
+          { isAdmin && (
+            <AdminButton tooltipText={"Skip video"} callback={playNextVideo} />
+          )}
+
           <Button as="a" onClick={logout} className="uwcs-signin" >Log out</Button>
         </NavItem>
         </>
@@ -87,6 +89,30 @@ const UserBox = () => {
     }
   </Navbar.Collapse>
   );
+}
+
+const AdminButton = ({tooltipText, callback}:any) => {
+  const targetRef = useRef(null);
+
+  const tooltip = (props:any) => (
+    <Tooltip 
+      id={`button-tooltip-${tooltipText}`}
+      {...props}
+    >
+      {tooltipText}
+    </Tooltip>
+  );
+
+  return (
+    <OverlayTrigger
+      placement="bottom"
+      overlay={tooltip}
+      >
+      <Button as="a" ref={targetRef} onClick={callback}>
+        <SkipNext />
+      </Button>  
+    </OverlayTrigger>
+  )
 }
 
 const firebaseLogin = async ({code}:any, {signal}:any) => {

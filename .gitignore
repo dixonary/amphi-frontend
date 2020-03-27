@@ -24,4 +24,5 @@ yarn-error.log*
 
 firebase-debug.log
 functions/
+/.firebase
 package-lock.json
