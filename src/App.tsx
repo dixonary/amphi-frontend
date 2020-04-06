@@ -1,4 +1,4 @@
-import React, {Component, useEffect, useContext, useState} from 'react';
+import React, {Component, useEffect, useContext, useState, useRef} from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -17,6 +17,16 @@ import {UserBox, LoginCallback} from './User';
 import { FirebaseUserProvider } from './UserProvider';
 import AdminToolsProvider from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
+import { Close } from '@material-ui/icons';
+
+/******************************************************************************/
+/* Constants */
+const UnderConstruction:boolean = true;
+
+
+
+/******************************************************************************/
+/* Main application logic */
 
 function App() {
 
@@ -43,7 +53,7 @@ function App() {
 
 }
 
-const Header = () => (
+const Header = () => (<>
   <Navbar variant="dark" bg="dark">
     <Navbar.Brand>AMPHI</Navbar.Brand>
     <Navbar.Toggle />
@@ -51,7 +61,8 @@ const Header = () => (
     <Route path="/auth/login" component={LoginCallback} />
     <Route exact path="/" component={UserBox} />
   </Navbar>
-);
+  { UnderConstruction && (<UnderConstructionNotice />) }
+</>);
 
 const NowPlayingText = () => {
   const nowPlaying = useContext(NowPlayingContext);
@@ -75,6 +86,28 @@ const NowPlayingText = () => {
   return (
     <Navbar.Text>Now playing: {videoData.title}</Navbar.Text>
   )
+};
+
+const UnderConstructionNotice = () => {
+  const noticeRef = useRef<HTMLDivElement>(null);
+  
+  const killNotice = () => {
+    if(noticeRef?.current !== null) {
+      noticeRef.current.remove();
+    }
+  }
+  
+  return (
+    <div className="notice" ref={noticeRef}>
+      <p>
+        This site is being actively developed. 
+        Things may change or behave strangely without warning.
+      </p>
+      <button className="closer" onClick={killNotice}>
+        <Close />
+      </button>
+    </div>
+  );
 };
 
 const Public = () => <h3>Public</h3>

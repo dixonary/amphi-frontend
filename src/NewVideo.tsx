@@ -80,7 +80,7 @@ const NewVideo = ({setAccordion}:any) => {
 
 const VideoData = ({videoId, resetData}:any) => {
   const videoRef = firebase.database().ref(`videos/${videoId}`);
-  const [videoData, loading, error] = useObjectVal(videoRef);
+  const [videoData, loading, error] = useObjectVal<any>(videoRef);
   const userQueue = useContext(QueueContext);
 
   // Tell the cloud about the new video ID we want populated
