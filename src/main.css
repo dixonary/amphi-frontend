@@ -312,6 +312,11 @@ p.now-playing {
     height:unset;
   }
 
+  aside.sidebar {
+    height:unset;
+    overflow:visible;
+  }
+
   .sidebar .card-body {
     flex-basis:auto;
   }
