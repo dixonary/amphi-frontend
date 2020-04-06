@@ -73,7 +73,6 @@ aside.sidebar {
   background-color:#2D3338;
   display:flex;
   flex-direction:column;
-  height:100%;
   overflow:hidden;
 }
 
@@ -313,7 +312,6 @@ p.now-playing {
   }
 
   aside.sidebar {
-    height:unset;
     overflow:visible;
   }
 
