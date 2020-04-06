@@ -63,7 +63,7 @@ const NewVideo = ({setAccordion}:any) => {
         onChange={(e) => updateVideoUrl(e.target.value)} 
         type="text"
         placeholder="Youtube ID or URL..."
-        // autoComplete="off"
+        autoComplete="off"
       />
       </div>
       {error && (<Alert variant="danger">{error}</Alert>)}
