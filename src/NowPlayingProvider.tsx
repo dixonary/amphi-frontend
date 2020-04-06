@@ -9,7 +9,8 @@ export type NowPlaying = {
     queuedBy:string,
     seconds:number,
     queuedAt:number,
-    startedAt:number
+    startedAt:number,
+    queuedByDisplayName:string
 };
 
 const NowPlayingProvider = ({children}:any) => {

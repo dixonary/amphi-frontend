@@ -101,8 +101,6 @@ const VideoData = ({videoId, resetData}:any) => {
 
     const queue = userQueue.queue?.val() as any[] | undefined | null;
     if(queue === undefined) return;
-
-    console.log(queue);
     
     // Silently die if we already have the video
     if(queue !== null && queue.findIndex((x) => x.video === videoId) !== -1) {

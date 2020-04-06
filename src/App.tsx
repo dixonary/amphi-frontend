@@ -4,7 +4,7 @@ import {
   Route,
 } from 'react-router-dom'
 import firebase from 'firebase';
-import { Navbar } from 'react-bootstrap';
+import { Navbar, Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './main.css';
@@ -67,7 +67,7 @@ const NowPlayingText = () => {
   const nowPlaying                              = useContext(NowPlayingContext);
   const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
   const [ videoData, setVideoData ]             = useState<any>(null);
-  
+
   useEffect(() => {
     if(nowPlaying?.video === undefined) {
       setVideoData(undefined);
@@ -81,6 +81,15 @@ const NowPlayingText = () => {
     };
     getVideoData();
   }, [nowPlaying]);
+
+  const tooltip = (props:any) => (
+    <Tooltip 
+      id={`now-playing-tooltip`}
+      {...props}
+    >
+      Queued by {nowPlaying?.queuedByDisplayName}
+    </Tooltip>
+  );
 
   const tryOpenToolbox = () => 
     openToolbox({
@@ -102,7 +111,13 @@ const NowPlayingText = () => {
         callback={tryOpenToolbox}
       />
     </>)}
-    <Navbar.Text>Now playing: {videoData.title}</Navbar.Text>
+    
+    <OverlayTrigger
+      placement="bottom"
+      overlay={tooltip}
+      >
+      <Navbar.Text>Now playing: {videoData.title}</Navbar.Text>
+    </OverlayTrigger>
   </>)
 };
 

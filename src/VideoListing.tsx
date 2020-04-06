@@ -21,13 +21,6 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
           .ref(`videos/${data.video}`)
           .once('value');
       setVideoData(vidData.val());
-
-      if(data?.queuedBy === undefined) return;
-      const userData = await firebase.database()
-          .ref(`users/${data.queuedBy}`)
-          .once('value');
-      console.log(userData.val());
-      setUserDisplayName(userData.val()?.displayName);
     };
     getVideoData();
   }, [data]);
@@ -53,7 +46,7 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
             <p className="channel-title">
               {videoData.channelTitle} - {convertDuration(videoData.duration)}
             </p>
-            <p className="displayName">{userDisplayName}</p>
+            <p className="displayName">{data.queuedByDisplayName}</p>
           </div>
         </>)
       }
