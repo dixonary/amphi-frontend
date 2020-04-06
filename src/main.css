@@ -251,9 +251,16 @@ a.btn.blocky {
 }
 
 .video-details p {
-  margin-bottom:7.5px;
+  margin-bottom:0;
 }
 
+.video-details .other-details {
+  display:flex;
+  justify-content: space-between;
+}
+.video-details .displayName {
+  color:var(--yellow);
+}
 
 .video-details .btn {
   visibility: hidden;
@@ -438,6 +445,10 @@ input[type=checkbox] {
 
   aside.sidebar {
     overflow:visible;
+  }
+
+  aside.sidebar .playlist {
+    flex-shrink:0;
   }
 
   .sidebar .card-body {

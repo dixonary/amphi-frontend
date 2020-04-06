@@ -9,17 +9,25 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 
 const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, localQueue:boolean}) => {
   const [videoData, setVideoData] = useState<any>(null);
+  const [userDisplayName, setUserDisplayName] = useState("");
   const {removeVideo} = useContext(QueueContext);
   const { isAdmin, dequeueVideo, openToolbox } = useContext(AdminToolsContext);
   const [ isDeleting, setisDeleting ] = useState<boolean>(false);
 
   useEffect(() => {
-    if(data?.video === undefined) return;
     const getVideoData = async () => {
+      if(data?.video === undefined) return;
       const vidData = await firebase.database()
-                                    .ref(`videos/${data.video}`)
-                                    .once('value');
+          .ref(`videos/${data.video}`)
+          .once('value');
       setVideoData(vidData.val());
+
+      if(data?.queuedBy === undefined) return;
+      const userData = await firebase.database()
+          .ref(`users/${data.queuedBy}`)
+          .once('value');
+      console.log(userData.val());
+      setUserDisplayName(userData.val()?.displayName);
     };
     getVideoData();
   }, [data]);
@@ -41,9 +49,12 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
        :
         (<>
           <p className="title">{videoData.title}</p>
-          <p className="channel-title">
-            {videoData.channelTitle} - {convertDuration(videoData.duration)}
-          </p>
+          <div className="other-details">
+            <p className="channel-title">
+              {videoData.channelTitle} - {convertDuration(videoData.duration)}
+            </p>
+            <p className="displayName">{userDisplayName}</p>
+          </div>
         </>)
       }
       {localQueue && (
