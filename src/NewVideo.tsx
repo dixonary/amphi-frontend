@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import { Alert, Spinner, Button } from "react-bootstrap";
-import { useDocumentData } from "react-firebase-hooks/firestore";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { PlaylistAdd } from "@material-ui/icons";
 import React from "react";
@@ -49,7 +48,7 @@ const NewVideo = ({setAccordion}:any) => {
     setAccordion("my-queue");
   }
 
-  if(user == undefined) {
+  if(user === undefined) {
     return (<p>Sign in to add songs to your queue.</p>);
   }
 

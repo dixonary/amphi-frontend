@@ -1,28 +1,24 @@
-import { useDocumentData, useCollection } from "react-firebase-hooks/firestore/";
-import convertDuration from "./ConvertDuration";
-import { useAuthState } from "react-firebase-hooks/auth/";
+
 import firebase from "firebase";
 import React from "react";
 import { Spinner } from "react-bootstrap";
 import VideoListing from "./VideoListing";
-import { useObjectVal, useObject } from "react-firebase-hooks/database/";
+import { useObject } from "react-firebase-hooks/database/";
 
 
+/** The global playlist.
+ */
 const Playlist = () => {
   const ref = firebase.database().ref('buckets').orderByChild('bucketIndex');
-  const [buckets, loading, error] = useObject(ref);
+  const [buckets,, error] = useObject(ref);
 
-
-  if(error) {
+  if(error) 
     return (<p>{error.message}</p>);
-  }
 
-  if(buckets === undefined) {
+  if(buckets === undefined) 
     return (<Spinner animation="border" />);
-  }
-
+  
   const bucketsArr = buckets.val() as any[];
-
   if(bucketsArr === null) {
     return (<p>The global playlist is empty.</p>);
   }
@@ -34,14 +30,18 @@ const Playlist = () => {
       ))}
     </>
   );
-
 }
 
 const Bucket = ({bucket, bucketIdx}:any) => {
   return (
     <div className="bucket">
       {bucket.map((vid:any, idx:number) => (
-        <VideoListing provided={{}} data={vid} localQueue={false} key={vid + "-" + idx}/>
+        <VideoListing 
+          provided={{}} 
+          data={vid} 
+          localQueue={false} 
+          key={vid + "-" + idx}
+        />
       ))}
     </div>
   );

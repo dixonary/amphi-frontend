@@ -26,8 +26,8 @@ const QueueProvider = ({children}:any) => {
     let newQueue = queue.val() as VidInfo[] | null;
     if(newQueue === null) return;
 
-    const idx = newQueue.findIndex((x) => x.video == videoId);
-    if(idx == -1) return;
+    const idx = newQueue.findIndex((x) => x.video === videoId);
+    if(idx === -1) return;
 
     newQueue.splice(idx, 1);
     

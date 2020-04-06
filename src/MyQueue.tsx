@@ -1,17 +1,15 @@
 import { Spinner } from "react-bootstrap";
-import React, { useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import firebase from "firebase";
 
-import { useDocumentData } from "react-firebase-hooks/firestore";
 import { useAuthState }         from "react-firebase-hooks/auth";
 
 import VideoListing from "./VideoListing";
-import { useObjectVal, useObject } from "react-firebase-hooks/database/";
 import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd'; 
 import { QueueContext, VidInfo } from "./QueueProvider";
 
 const MyQueue = () => {
-  const [ user, loading, error ] = useAuthState(firebase.auth());
+  const [ user ] = useAuthState(firebase.auth());
   return (!user
     ? (<p>Sign in to see your queue.</p>)
     : (<UserQueue user={user} />)
@@ -21,13 +19,9 @@ const MyQueue = () => {
 const UserQueue = ({user}:{user:firebase.User}) => {
   const {queue, moveVideo} = useContext(QueueContext);
 
-  const makeListing = (video:any, idx:number) => {
-    return;
-  };
-
   const reorderList = async ({source, destination, draggableId}:any) => {
     if(!destination) return;
-    if(source == destination) return;
+    if(source === destination) return;
 
     await moveVideo(draggableId, destination.index)
   };
@@ -37,7 +31,7 @@ const UserQueue = ({user}:{user:firebase.User}) => {
   }
   const queueVal = queue.val() as VidInfo[] | null;
 
-  if(queueVal === null || queue.numChildren() == 0) {
+  if(queueVal === null || queue.numChildren() === 0) {
     return (<p>Your queue is empty.</p>);
   }
   

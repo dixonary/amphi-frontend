@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
+import { Delete, Settings } from "@material-ui/icons";
 import { Spinner, Button } from "react-bootstrap";
-
 import firebase from "firebase";
-
-import { Delete } from "@material-ui/icons";
 
 import convertDuration from "./ConvertDuration";
 import { QueueContext } from "./QueueProvider";
@@ -12,17 +10,19 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, localQueue:boolean}) => {
   const [videoData, setVideoData] = useState<any>(null);
   const {removeVideo} = useContext(QueueContext);
-  const { isAdmin, dequeueVideo } = useContext(AdminToolsContext);
+  const { isAdmin, dequeueVideo, openToolbox } = useContext(AdminToolsContext);
   const [ isDeleting, setisDeleting ] = useState<boolean>(false);
 
   useEffect(() => {
     if(data?.video === undefined) return;
     const getVideoData = async () => {
-      const vidData = await firebase.database().ref(`videos/${data.video}`).once('value');
+      const vidData = await firebase.database()
+                                    .ref(`videos/${data.video}`)
+                                    .once('value');
       setVideoData(vidData.val());
     };
     getVideoData();
-  }, [data.video]);
+  }, [data]);
 
   const adminDequeue = async function(vidId:string, queuedBy:string) {
     setisDeleting(true);
@@ -41,20 +41,42 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
        :
         (<>
           <p className="title">{videoData.title}</p>
-          <p className="channel-title">{videoData.channelTitle} - {convertDuration(videoData.duration)}</p>
+          <p className="channel-title">
+            {videoData.channelTitle} - {convertDuration(videoData.duration)}
+          </p>
         </>)
       }
       {localQueue && (
-        <Button as="a" className="delete" variant="dark" onClick={() => removeVideo(data.video)}>
+        <Button 
+            as="a" 
+            className="delete" 
+            variant="dark" 
+            onClick={() => removeVideo(data.video)}
+        >
           <Delete />
         </Button>
       )}
       {!localQueue && isAdmin && (
-        <Button as="a" className="delete admin" variant="dark" onClick={() => adminDequeue(data.video, data.queuedBy)}>
+        <Button 
+            as="a" 
+            className="delete admin" 
+            variant="dark" 
+            onClick={() => adminDequeue(data.video, data.queuedBy)}
+        >
           {isDeleting
             ? (<Spinner animation="border" />)
             : (<Delete />)
           }     
+        </Button>
+      )}
+      {!localQueue && isAdmin && (
+        <Button 
+            as="a" 
+            className="tools admin" 
+            variant="dark" 
+            onClick={() => openToolbox({video:data.video, user:data.queuedBy})}
+        >
+          <Settings />
         </Button>
       )}
     </div>

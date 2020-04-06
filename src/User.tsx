@@ -1,8 +1,6 @@
 import React, { useContext, useRef } from 'react';
 import { useAsync } from "react-async";
-import { Spinner, Button, Navbar, Row, NavItem, Tooltip, OverlayTrigger, Overlay } from 'react-bootstrap';
-
-import { SkipNext } from '@material-ui/icons';
+import { Spinner, Button, Navbar, NavItem, Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 import firebase from 'firebase';
 
@@ -45,21 +43,15 @@ export const useAuth = () => {
   return state;
 }
 
-const login = () => {
-  window.location.href = AUTH_ENDPOINT;
+const login  = () => { 
+  const endpoint = AUTH_ENDPOINT + `?host=${escape(window.location.origin)}`;
+  window.location.href = endpoint;
 };
-
-const logout = () => {
-  firebase.auth().signOut();
-};
-
-// const login  = () => {};
-// const logout = () => {};
+const logout = () => { firebase.auth().signOut();            };
 
 const UserBox = () => {
-  // const [user, initialising] = [false, false];
   const [user, initializing] = useAuth();
-  const { isAdmin, playNextVideo } = useContext(AdminToolsContext);
+  const { isAdmin } = useContext(AdminToolsContext);
 
   return (<Navbar.Collapse className="justify-content-end">
     { user
@@ -69,11 +61,6 @@ const UserBox = () => {
           {isAdmin ? " (Admin)" : ""}
         </Navbar.Text>
         <NavItem>
-
-          { isAdmin && (
-            <AdminButton tooltipText={"Skip video"} callback={playNextVideo} />
-          )}
-
           <Button as="a" onClick={logout} className="uwcs-signin" >Log out</Button>
         </NavItem>
         </>
@@ -91,7 +78,7 @@ const UserBox = () => {
   );
 }
 
-const AdminButton = ({tooltipText, callback}:any) => {
+const AdminButton = ({tooltipText, callback, icon}:any) => {
   const targetRef = useRef(null);
 
   const tooltip = (props:any) => (
@@ -109,51 +96,27 @@ const AdminButton = ({tooltipText, callback}:any) => {
       overlay={tooltip}
       >
       <Button as="a" ref={targetRef} onClick={callback}>
-        <SkipNext />
+        {icon}
       </Button>  
     </OverlayTrigger>
   )
 }
 
-const firebaseLogin = async ({code}:any, {signal}:any) => {
-  const response = await fetch(`${AUTH_CB_ENDPOINT}?code=${code}`);
+const firebaseLogin = async ({code}:any) => {
+  const host=escape(window.location.origin);
+  const response = await fetch(`${AUTH_CB_ENDPOINT}?host=${host}&code=${code}`);
   if(!response.ok) throw new Error(response.status.toString());
   const data     = await response.json();   
   
   await firebase.auth().signInWithCustomToken(data.token);
 
   return code;
-  // const [token  , setToken]   = React.useState(null);
-  // const [loading, setLoading] = React.useState(false);
-
-  // React.useEffect(() => {
-  //   setLoading(true);
-  //   async function getCode() {
-  //     try {
-
-  //       const response = await fetch(`${AUTH_CB_ENDPOINT}?code=${code}`);
-  //       const data     = await response.json();    
-
-  //       await firebase.auth().signInWithCustomToken(data.token);
-  //       setToken(data.token);
-
-  //       setLoading(false);
-
-  //     } catch (error) {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   getCode();
-  // }, []);
-
-  // return [token, loading];
 }
 
 const LoginCallback = () => {
   const code  = useQuery().get('code');
   // const {data, error, isPending} = useAsync({promiseFn:firebaseLogin, code: (query.get('code') ?? ""});
-  const { data, error } = useAsync({ promiseFn: firebaseLogin, code })
-
+  const { data } = useAsync({ promiseFn: firebaseLogin, code })
 
   return (
     <Navbar.Collapse className="justify-content-end">
@@ -165,4 +128,4 @@ const LoginCallback = () => {
 
 }
 
-export {UserBox, login, logout, LoginCallback};
+export {UserBox, login, logout, LoginCallback, AdminButton};

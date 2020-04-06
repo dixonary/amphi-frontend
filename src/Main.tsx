@@ -1,7 +1,7 @@
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import React, { useContext, useEffect, useState } from "react";
 
-import YouTube, { YouTubeProps } from 'react-youtube';
+import YouTube from 'react-youtube';
 
 import Sidebar from "./Sidebar";
 import NoVideo from "./NoVideo";
@@ -35,7 +35,7 @@ const Player = () => {
     const ss = Math.floor((Date.now() - nowPlaying.startedAt) / 1000);
     setStartSeconds(ss);
     console.log("Running");
-  });
+  }, [nowPlaying]);
 
   if(nowPlaying === undefined || nowPlaying === null) {
     return (<NoVideo />);
@@ -50,7 +50,7 @@ const Player = () => {
     // where it should be vs where it is
     const msDiff = shouldBe - target.getCurrentTime()*1000;
 
-    if(msDiff > 2000) { // at least 2 seconds out of sync
+    if(Math.abs(msDiff) > 2000) { // at least 2 seconds out of sync
       target.seekTo(Math.floor(shouldBe / 1000));
     }
   }

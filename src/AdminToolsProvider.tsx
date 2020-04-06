@@ -5,6 +5,7 @@ import firebase from "firebase";
 const AdminToolsProvider = ({children}:any) => {
   const currentUser = useContext(UserContext);
   const [ isAdmin, setIsAdmin ] = useState<any>(null);
+  const [ toolboxData, setToolboxData ] = useState<ToolboxData>(noToolboxData);
 
   // We only get this once per login. Logging out and in again should repop.
   // Manually overriding isAdmin will show you the administrator tools, but
@@ -21,15 +22,30 @@ const AdminToolsProvider = ({children}:any) => {
   }, [currentUser]);
 
   const dequeueVideo = async (vidId:string, uid:string) => {
-    console.log(vidId, uid);
+    // TODO add audit
     await firebase.functions().httpsCallable('admin_dequeueVideo')({vidId, uid});
   };
 
   const playNextVideo  = async () => {
+    // TODO add audit
     await firebase.functions().httpsCallable('admin_playNextVideo')();
   };
 
-  const admin = {isAdmin, dequeueVideo, playNextVideo};
+  const closeToolbox = () => { setToolboxData(noToolboxData); }
+
+  const openToolbox = (data:ToolboxData) => {
+    if(toolboxData.video === null && toolboxData.user === null)
+      setToolboxData(data);
+  }
+
+  const admin = {
+    isAdmin, 
+    dequeueVideo, 
+    playNextVideo,
+    closeToolbox,
+    openToolbox,
+    toolboxData
+  };
 
   return (
     <AdminToolsContext.Provider value={isAdmin ? admin : notAdmin}>
@@ -39,20 +55,40 @@ const AdminToolsProvider = ({children}:any) => {
 
 };
 
+/******************************************************************************/
+/* Types */
+
+// ToolboxData represents the video and current user which are currently
+// open in the modal. If both are null, the modal is closed.
+export type ToolboxData = {video:string|null, user:string|null};
+const noToolboxData:ToolboxData = {video:null, user:null};
+
+
+
+// AdminTools includes references to all the admin data parts of the
+// frontend may need access to. Use sites may destructure only the 
+// relevant values.
 export type AdminTools = {
-  isAdmin:boolean,
-  dequeueVideo:(vidId:string, userId:string) => any,
-  playNextVideo:() => any
+  isAdmin      : boolean,
+  dequeueVideo : (vidId:string, userId:string) => any,
+  playNextVideo: () => any,
+  closeToolbox : () => any,
+  openToolbox  : (data:ToolboxData) => any,
+  toolboxData  : ToolboxData
 };
 
 // The admin property is also checked serverside.
+// No non-admin will be able to invoke any tools provided here.
 const notAdmin:AdminTools = {
-  isAdmin:false,
-  dequeueVideo:(v:string, u:string) => { alert("You are not an admin!"); },
-  playNextVideo:() => { alert ("You are not an admin!"); }
+  isAdmin      : false,
+  dequeueVideo : () => { alert("You are not an admin!"); },
+  playNextVideo: () => { alert("You are not an admin!"); },
+  closeToolbox : () => { alert("You are not an admin!"); },
+  openToolbox  : () => { alert("You are not an admin!"); },
+  toolboxData  : noToolboxData
 }
 
 const AdminToolsContext = React.createContext(notAdmin)
 
 export default AdminToolsProvider;
-export { AdminToolsContext };
+export { AdminToolsContext, noToolboxData };

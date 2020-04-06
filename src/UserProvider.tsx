@@ -6,7 +6,7 @@ import firebase from "firebase";
 const UserContext = React.createContext<undefined | firebase.User>(undefined);
 
 const FirebaseUserProvider = ({children}:any) => {
-  const [user, loading, error] = useAuthState(firebase.auth());
+  const [ user ] = useAuthState(firebase.auth());
 
   return (
     <UserContext.Provider

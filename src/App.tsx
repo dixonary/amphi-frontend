@@ -1,11 +1,8 @@
-import React, {Component, useEffect, useContext, useState, useRef} from 'react';
+import React, {useEffect, useContext, useState, useRef} from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Link,
-  Redirect
 } from 'react-router-dom'
-import { useAuthState } from 'react-firebase-hooks/auth';
 import firebase from 'firebase';
 import { Navbar } from 'react-bootstrap';
 
@@ -13,11 +10,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './main.css';
 
 import Main from './Main';
-import {UserBox, LoginCallback} from './User';
+import {UserBox, LoginCallback, AdminButton} from './User';
 import { FirebaseUserProvider } from './UserProvider';
-import AdminToolsProvider from './AdminToolsProvider';
+import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
-import { Close } from '@material-ui/icons';
+import { Close, Settings, SkipNext } from '@material-ui/icons';
 
 /******************************************************************************/
 /* Constants */
@@ -40,33 +37,36 @@ function App() {
 
   return (
     <Router>
-      <FirebaseUserProvider>
-        <AdminToolsProvider>
-          <NowPlayingProvider>
-            <Header />
-            <Main />
-          </NowPlayingProvider>
-        </AdminToolsProvider>
-      </FirebaseUserProvider>
+      <NowPlayingProvider>
+        <FirebaseUserProvider>
+          <AdminToolsProvider>
+              <Header />
+              <Main />
+          </AdminToolsProvider>
+        </FirebaseUserProvider>
+      </NowPlayingProvider>
     </Router>
   );
 
 }
 
 const Header = () => (<>
-  <Navbar variant="dark" bg="dark">
+  <Navbar expand="lg" variant="dark" bg="dark">
     <Navbar.Brand>AMPHI</Navbar.Brand>
     <Navbar.Toggle />
-    <NowPlayingText />
-    <Route path="/auth/login" component={LoginCallback} />
-    <Route exact path="/" component={UserBox} />
+    <Navbar.Collapse>
+      <NowPlayingText />
+      <Route path="/auth/login" component={LoginCallback} />
+      <Route exact path="/" component={UserBox} />
+    </Navbar.Collapse>
   </Navbar>
   { UnderConstruction && (<UnderConstructionNotice />) }
 </>);
 
 const NowPlayingText = () => {
-  const nowPlaying = useContext(NowPlayingContext);
-  const [videoData, setVideoData] = useState<any>(null);
+  const nowPlaying                              = useContext(NowPlayingContext);
+  const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
+  const [ videoData, setVideoData ]             = useState<any>(null);
   
   useEffect(() => {
     if(nowPlaying?.video === undefined) {
@@ -80,12 +80,30 @@ const NowPlayingText = () => {
       setVideoData(vidData.val());
     };
     getVideoData();
-  });
+  }, [nowPlaying]);
+
+  const tryOpenToolbox = () => 
+    openToolbox({
+      video:nowPlaying?.video    ?? null, 
+      user :nowPlaying?.queuedBy ?? null
+    });
 
   if(videoData === null || videoData === undefined) return (<></>);
-  return (
+  return (<>
+    {isAdmin && (<>
+      <AdminButton
+        tooltipText="Skip video"
+        icon={(<SkipNext />)}
+        callback={playNextVideo} 
+      />
+      <AdminButton 
+        tooltipText="Tools"
+        icon={(<Settings />)}
+        callback={tryOpenToolbox}
+      />
+    </>)}
     <Navbar.Text>Now playing: {videoData.title}</Navbar.Text>
-  )
+  </>)
 };
 
 const UnderConstructionNotice = () => {
@@ -109,8 +127,5 @@ const UnderConstructionNotice = () => {
     </div>
   );
 };
-
-const Public = () => <h3>Public</h3>
-const Protected = () => <h3>Protected</h3>
 
 export default App;

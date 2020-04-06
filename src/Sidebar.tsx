@@ -4,13 +4,14 @@ import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
 import Playlist from "./Playlist";
 import QueueProvider from "./QueueProvider";
+import AdminToolbox from "./AdminToolbox";
 
 
 const Sidebar = () => {
   const [activeKey, setActiveKey] = useState("my-queue");
 
   const active = (key:string) => {
-    if(activeKey == key) {
+    if(activeKey === key) {
       setActiveKey("");
     }
     else {
@@ -18,11 +19,11 @@ const Sidebar = () => {
     }
   }
 
-  return (
+  return (<>
     <QueueProvider>
       <Card bg="dark" className="playlist">
         <Card.Header>
-          <a>Playlist</a>
+          <Accordion.Toggle as="a" variant="link" eventKey="__">Playlist</Accordion.Toggle>
         </Card.Header>
         <Card.Body>
           <Playlist />
@@ -66,6 +67,8 @@ const Sidebar = () => {
         </Card>
       </Accordion>
     </QueueProvider>
+    <AdminToolbox />
+    </>
   );
 }
 
