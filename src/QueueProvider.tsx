@@ -13,11 +13,11 @@ const QueueProvider = ({children}:any) => {
     if(currentUser === undefined) return;
     if(queue       === undefined) return;
 
-    await queue.ref
-      .child(queue.numChildren().toString())
-      .child("video")
-      .set(videoId);
-
+    await queue.ref.transaction(q => {
+      if(q === null) return [{video:videoId}];
+      q.push({video:videoId});
+      return q;
+    });
   };
 
   const removeVideo = async (videoId:string) => {
@@ -32,7 +32,6 @@ const QueueProvider = ({children}:any) => {
     newQueue.splice(idx, 1);
     
     await queue.ref.set(newQueue);
-
   };
 
   const moveVideo = async (vidId:string, toIdx:number) => {

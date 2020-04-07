@@ -14,7 +14,7 @@ import {UserBox, LoginCallback, AdminButton} from './User';
 import { FirebaseUserProvider } from './UserProvider';
 import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
-import { Close, Settings, SkipNext } from '@material-ui/icons';
+import { Close, Assignment, SkipNext } from '@material-ui/icons';
 
 /******************************************************************************/
 /* Constants */
@@ -107,7 +107,7 @@ const NowPlayingText = () => {
       />
       <AdminButton 
         tooltipText="Tools"
-        icon={(<Settings />)}
+        icon={(<Assignment />)}
         callback={tryOpenToolbox}
       />
     </>)}

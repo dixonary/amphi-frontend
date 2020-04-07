@@ -104,8 +104,8 @@ const VideoData = ({videoId, resetData}:any) => {
     
     // Silently die if we already have the video
     if(queue !== null && queue.findIndex((x) => x.video === videoId) !== -1) {
-      window.alert("You cannot queue the same song more than once at a time.");
-      return;
+      // window.alert("You cannot queue the same song more than once at a time.");
+      // return;
     }
     
     // Force loading state on button

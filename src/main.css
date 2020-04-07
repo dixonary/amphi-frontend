@@ -393,6 +393,10 @@ p.now-playing {
   color:#ddd;
 }
 
+.modal-body .btn.unblacklist {
+  background-color: darkgreen;
+}
+
 .modal-body .btn-primary:hover {
   color:#ddd;
 }
@@ -407,6 +411,20 @@ p.now-playing {
 }
 .modal-body .horz .btn.btn:not(:last-child) {
   margin-right:0.5rem;
+}
+
+.modal-body .unban {
+  display:inline;
+  padding:0;
+  margin:0;
+  margin-left:0.5rem;
+  background:none !important;
+  color:dodgerblue;
+  vertical-align: baseline;
+}
+
+.modal-body .unban:hover {
+  color:cornflowerblue;
 }
 
 input[type=checkbox] {

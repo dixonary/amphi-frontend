@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Delete, Settings } from "@material-ui/icons";
+import { Delete, Assignment } from "@material-ui/icons";
 import { Spinner, Button } from "react-bootstrap";
 import firebase from "firebase";
 
@@ -9,7 +9,6 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 
 const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, localQueue:boolean}) => {
   const [videoData, setVideoData] = useState<any>(null);
-  const [userDisplayName, setUserDisplayName] = useState("");
   const {removeVideo} = useContext(QueueContext);
   const { isAdmin, dequeueVideo, openToolbox } = useContext(AdminToolsContext);
   const [ isDeleting, setisDeleting ] = useState<boolean>(false);
@@ -37,7 +36,7 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
         {...provided.dragHandleProps}
         ref={provided.innerRef}
     >
-      {videoData == null
+      {videoData == null || data?.queuedAt === undefined || data?.queuedAt === null
        ? (<Spinner animation="border" />)
        :
         (<>
@@ -80,7 +79,7 @@ const VideoListing = ({provided, data,  localQueue}:{provided:any, data:any, loc
             variant="dark" 
             onClick={() => openToolbox({video:data.video, user:data.queuedBy})}
         >
-          <Settings />
+          <Assignment />
         </Button>
       )}
     </div>
