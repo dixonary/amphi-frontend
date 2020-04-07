@@ -47,9 +47,18 @@ const NewVideo = ({setAccordion}:any) => {
     setVideoId("");
     setAccordion("my-queue");
   }
+  if(user.firebaseUser === undefined) {
+    return (<p>Sign in to add videos to your queue.</p>);
+  }
 
-  if(user === undefined) {
-    return (<p>Sign in to add songs to your queue.</p>);
+  if(user.userData?.status === "banned") {
+    return (<p>You may not queue videos.</p>);
+  }
+  if(user.userData?.status !== null && user.userData?.status !== undefined) {
+    return (<p>
+      You may queue songs again after{' '}
+      {timeToDurationString(user.userData.status)}.
+    </p>);
   }
 
   return (
@@ -75,6 +84,17 @@ const NewVideo = ({setAccordion}:any) => {
     </>
   );
 };
+
+const timeToDurationString = (then:number) => {
+  const seconds = (then - Date.now()) / 1000;
+  if(seconds > 3600) {
+    return Math.round(seconds / 3600) + " hours";
+  }
+  if(seconds > 60) {
+    return Math.round(seconds / 60) + " minutes";
+  }
+  return seconds + " seconds";
+}
 
 
 const VideoData = ({videoId, resetData}:any) => {

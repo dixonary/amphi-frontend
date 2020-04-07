@@ -11,15 +11,16 @@ const AdminToolsProvider = ({children}:any) => {
   // Manually overriding isAdmin will show you the administrator tools, but
   // none of them will work.
   useEffect(() => {
-    if(currentUser === undefined) return;
-    if(currentUser === null)      return;
+    const fbuser = currentUser?.firebaseUser;
+    if(fbuser === undefined) return;
+    if(fbuser === null)      return;
     const getUserData = async () => {
-      const userDataRef = firebase.database().ref(`users/${currentUser.uid}`);
+      const userDataRef = firebase.database().ref(`users/${fbuser.uid}`);
       const userData = (await userDataRef.once('value')).val();
       setIsAdmin(userData !== null && userData.isAdmin === true);
     };
     getUserData();
-  }, [currentUser]);
+  }, [currentUser?.firebaseUser]);
 
   const dequeueVideo = async (vidId:string, uid:string) => {
     // TODO add audit

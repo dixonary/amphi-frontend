@@ -1,20 +1,31 @@
 import { useAuthState } from "react-firebase-hooks/auth";
-import React from "react";
+import React, { useEffect } from "react";
 import firebase from "firebase";
+import { useObjectVal } from "react-firebase-hooks/database";
 
 
-const UserContext = React.createContext<undefined | firebase.User>(undefined);
+type UserState = { 
+  firebaseUser: firebase.User | undefined,
+  userData    : any 
+};
+const noUserState = { 
+  firebaseUser: undefined, 
+  userData    : undefined
+}
 
-const FirebaseUserProvider = ({children}:any) => {
-  const [ user ] = useAuthState(firebase.auth());
+const UserContext = React.createContext<UserState>(noUserState);
+
+const UserProvider = ({children}:any) => {
+  const [ user ]  = useAuthState(firebase.auth());
+  const [ udata ] = useObjectVal(firebase.database().ref(`users/${user?.uid}`));
 
   return (
     <UserContext.Provider
-      value={user}
+      value={{firebaseUser:user, userData:udata }}
     >
       {children}
     </UserContext.Provider>
   );
 }
 
-export { UserContext, FirebaseUserProvider }
+export { UserContext, UserProvider }

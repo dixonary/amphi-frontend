@@ -11,7 +11,7 @@ import './main.css';
 
 import Main from './Main';
 import {UserBox, LoginCallback, AdminButton} from './User';
-import { FirebaseUserProvider } from './UserProvider';
+import { UserProvider } from './UserProvider';
 import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
 import { Close, Assignment, SkipNext } from '@material-ui/icons';
@@ -38,12 +38,12 @@ function App() {
   return (
     <Router>
       <NowPlayingProvider>
-        <FirebaseUserProvider>
+        <UserProvider>
           <AdminToolsProvider>
               <Header />
               <Main />
           </AdminToolsProvider>
-        </FirebaseUserProvider>
+        </UserProvider>
       </NowPlayingProvider>
     </Router>
   );

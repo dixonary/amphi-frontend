@@ -5,7 +5,7 @@ import firebase from "firebase";
 
 const QueueProvider = ({children}:any) => {
   const currentUser = useContext(UserContext);
-  const ref = firebase.database().ref(`queues/${currentUser?.uid}`);
+  const ref = firebase.database().ref(`queues/${currentUser?.firebaseUser?.uid}`);
   const [ queue ]   = useObject(ref);
 
   const enqueueVideo = async (videoId:string) => {
@@ -52,8 +52,6 @@ const QueueProvider = ({children}:any) => {
     // Move the relevant ID to its new home
     queueIds.splice(fromIdx, 1);
     queueIds.splice(toIdx, 0, vidId);
-
-    console.log(queueIds);
 
     const newQueue: VidInfo[] = [];
     oldQueue.forEach((vid) => {
