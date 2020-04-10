@@ -111,6 +111,7 @@ const NumericControl = ({valueRef, label}:NumericControlData) => {
 
   const setVal = async (val:string) => {
     let valInt = parseInt(val);
+    if(Number.isNaN(valInt)) valInt = 0;
     if(!(Number.isInteger(valInt)) || valInt < 0) return;
     setLocalValue(valInt);
     await valueRef.set(valInt);
