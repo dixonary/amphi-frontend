@@ -18,7 +18,7 @@ import { Close, Assignment, SkipNext, Settings } from '@material-ui/icons';
 
 /******************************************************************************/
 /* Constants */
-const UnderConstruction:boolean = true;
+const UnderConstruction:boolean = false;
 
 
 
@@ -113,7 +113,7 @@ const NowPlayingText = () => {
 
   if(videoData === null || videoData === undefined) return (<></>);
   return (<>
-    {isAdmin && (<>
+    {/* {isAdmin && (<>
       <AdminButton
         tooltipText="Skip video"
         icon={(<SkipNext />)}
@@ -124,13 +124,12 @@ const NowPlayingText = () => {
         icon={(<Assignment />)}
         callback={tryOpenToolbox}
       />
-    </>)}
-    
+    </>)} */}
     <OverlayTrigger
       placement="bottom"
       overlay={tooltip}
       >
-      <Navbar.Text>Now playing: {videoData.title}</Navbar.Text>
+      <Navbar.Text>{videoData.title}</Navbar.Text>
     </OverlayTrigger>
   </>)
 };

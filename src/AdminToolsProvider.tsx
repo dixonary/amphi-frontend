@@ -34,6 +34,7 @@ const AdminToolsProvider = ({children}:any) => {
   };
 
   const blacklistVideo = async (vidId:string) => {
+    await playNextVideo();
     await firebase.database().ref(`blacklist/${vidId}`).set(true);
   }
   const unblacklistVideo = async (vidId:string) => {

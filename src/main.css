@@ -163,6 +163,17 @@ a.btn.blocky {
   overflow-y: auto;
 }
 
+.sidebar .now-playing .card-body {
+  padding:0.5rem;
+  flex-basis:unset;
+}
+.sidebar .now-playing .video-details {
+  padding:0;
+  border:none;
+  background:transparent;
+  margin-bottom:0;
+}
+
 .sidebar .bucket {
   border:1px solid #666;
   border-radius:3px;
@@ -260,6 +271,13 @@ a.btn.blocky {
 }
 .video-details .displayName {
   color:var(--yellow);
+}
+
+p.displayName, p.display-name {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  flex-shrink: 1;
+  white-space: nowrap;
 }
 
 .video-details .btn {
@@ -573,8 +591,18 @@ input[type=checkbox] {
     overflow:visible;
   }
 
-  aside.sidebar .playlist {
+  aside.sidebar .playlist{
     flex-shrink:0;
+  }
+
+  aside.sidebar .now-playing .video-details {
+    min-height:3rem;
+  }
+
+  aside.sidebar .now-playing .card-body {
+    overflow: visible;
+    flex-shrink: 0;
+    flex-basis: unset;
   }
 
   .sidebar .card-body {

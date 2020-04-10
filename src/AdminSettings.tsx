@@ -148,7 +148,7 @@ type VideoHistory = {
 const VideoHistory = ({openToolbox}:any) => {
   const historyRef = firebase.database()
     .ref('history')
-    .orderByChild('queuedAt');
+    .orderByChild('playedAt');
   const [ history ] = useObjectVal<any>(historyRef);
 
   if(history === undefined) {
