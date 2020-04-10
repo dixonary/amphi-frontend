@@ -1,5 +1,5 @@
 import { useAuthState } from "react-firebase-hooks/auth";
-import React, { useEffect } from "react";
+import React from "react";
 import firebase from "firebase";
 import { useObjectVal } from "react-firebase-hooks/database";
 

@@ -14,7 +14,7 @@ import {UserBox, LoginCallback, AdminButton} from './User';
 import { UserProvider } from './UserProvider';
 import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
-import { Close, Assignment, SkipNext } from '@material-ui/icons';
+import { Close, Assignment, SkipNext, Settings } from '@material-ui/icons';
 
 /******************************************************************************/
 /* Constants */
@@ -53,6 +53,7 @@ function App() {
 const Header = () => (<>
   <Navbar expand="lg" variant="dark" bg="dark">
     <Navbar.Brand>AMPHI</Navbar.Brand>
+    <AdminSettingsButton />
     <Navbar.Toggle />
     <Navbar.Collapse>
       <NowPlayingText />
@@ -62,6 +63,19 @@ const Header = () => (<>
   </Navbar>
   { UnderConstruction && (<UnderConstructionNotice />) }
 </>);
+
+const AdminSettingsButton = () => {
+  const { isAdmin, openSettings } = useContext(AdminToolsContext);
+  return (<>
+    {isAdmin && (
+      <AdminButton 
+      tooltipText="Settings"
+      icon={(<Settings />)}
+      callback={openSettings}
+    />
+    )}
+  </>)
+}
 
 const NowPlayingText = () => {
   const nowPlaying                              = useContext(NowPlayingContext);

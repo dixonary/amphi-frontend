@@ -434,6 +434,110 @@ input[type=checkbox] {
   background:#222528;
 }
 
+.admin-settings .numeric-control {
+  display:flex;
+}
+
+.admin-settings .numeric-control label {
+  display:flex;
+  flex-direction:column;
+}
+.admin-settings .numeric-control label .horz {
+  align-items:center;
+}
+.admin-settings .numeric-control label .horz *:not(:last-child) {
+  margin-right:1rem;
+}
+
+.admin-settings .video-history .card-body {
+  padding:0;
+}
+.admin-settings .video-details {
+  padding:1rem;
+  margin-bottom:0;
+}
+.admin-settings .video-details:not(:last-child) {
+  border-bottom:1px solid #ddd;
+}
+.admin-settings .btn.tools.admin {
+  transform: translateY(-50%);
+}
+.admin-settings .video-details .displayName {
+  color:var(--blue);
+}
+
+.accordion .card-header {
+  padding:0;
+}
+.accordion .card-header button {
+  display:block;
+  width:100%;
+}
+
+.admin-settings .master-user-list .card-body {
+  padding:0;
+}
+
+.admin-settings .history-item {
+  display:flex;
+  font-size:0.8rem;
+  font-family:sans-serif;
+  align-items:center;
+  padding:0.5rem;
+  border-bottom:1px solid #ddd;
+}
+.admin-settings .history-item p {
+  margin:0;
+}
+
+.admin-settings .history-item .details {
+  flex-grow:1;
+  display:flex;
+  flex-direction:column;
+  margin-right:1rem;
+}
+.admin-settings .history-item .title {
+  font-weight:bold;
+}
+.admin-settings .history-item .other-details {
+  flex-grow:1;
+  display:flex;
+  justify-content:space-between;
+}
+.admin-settings .history-item .displayName {
+  color:var(--blue);
+}
+.admin-settings .history-item .btn.tools.admin {
+  position:static;
+  transform:none;
+}
+
+.admin-settings .user-item {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  height:3rem;
+  border-bottom:1px solid #ddd;
+  padding-left:1rem;
+}
+.admin-settings .user-item .display-name {
+  flex-grow:1;
+}
+.admin-settings .user-item .user-name {
+  color:#ccc;
+  padding-left:0.5rem;
+}
+.admin-settings .user-item p {
+  margin:0;
+}
+.admin-settings .user-item .status {
+  margin-right:1rem;
+}
+.admin-settings .user-list .btn.tools.admin {
+  position:static;
+  transform:none;
+}
+
 /* Large or smaller!*/
 @media screen and (max-width:991px) {
   .video-details {

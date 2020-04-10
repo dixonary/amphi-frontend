@@ -16,9 +16,7 @@ export type NowPlaying = {
 const NowPlayingProvider = ({children}:any) => {
   const nowPlayingRef = firebase.database().ref('currentVideo');
   const [ nowPlaying ] = useObjectVal<NowPlaying>(nowPlayingRef);
-
-  console.log(nowPlaying);
-
+  
   return (
     <NowPlayingContext.Provider
       value={nowPlaying}

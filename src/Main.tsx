@@ -6,12 +6,12 @@ import YouTube from 'react-youtube';
 import Sidebar from "./Sidebar";
 import NoVideo from "./NoVideo";
 import { NowPlayingContext } from "./NowPlayingProvider";
+import AdminSettings from "./AdminSettings";
 
 const Main = () => {
-
-
   return (
   <Container fluid={true} as="main" className="flex-column text-light">
+    <AdminSettings />
     <Row className="main-row">
       <Col lg={9}>
         <Player />
@@ -34,7 +34,6 @@ const Player = () => {
     if(nowPlaying === null)      return;
     const ss = Math.floor((Date.now() - nowPlaying.startedAt) / 1000);
     setStartSeconds(ss);
-    console.log("Running");
   }, [nowPlaying]);
 
   if(nowPlaying === undefined || nowPlaying === null) {

@@ -6,6 +6,7 @@ const AdminToolsProvider = ({children}:any) => {
   const currentUser = useContext(UserContext);
   const [ isAdmin, setIsAdmin ] = useState<any>(null);
   const [ toolboxData, setToolboxData ] = useState<ToolboxData>(noToolboxData);
+  const [ showSettings, setShowSettings ] = useState<boolean>(false);
 
   // We only get this once per login. Logging out and in again should repop.
   // Manually overriding isAdmin will show you the administrator tools, but
@@ -20,7 +21,7 @@ const AdminToolsProvider = ({children}:any) => {
       setIsAdmin(userData !== null && userData.isAdmin === true);
     };
     getUserData();
-  }, [currentUser?.firebaseUser]);
+  }, [currentUser]);
 
   const dequeueVideo = async (vidId:string, uid:string) => {
     // TODO add audit
@@ -61,6 +62,9 @@ const AdminToolsProvider = ({children}:any) => {
       setToolboxData(data);
   }
 
+  const openSettings  = () => { setShowSettings(true);  }
+  const closeSettings = () => { setShowSettings(false); }
+
 
   const admin = {
     isAdmin, 
@@ -74,7 +78,10 @@ const AdminToolsProvider = ({children}:any) => {
     clearUserQueue,
     suspendUser,
     banUser,
-    unbanUser
+    unbanUser,
+    showSettings,
+    openSettings,
+    closeSettings
   };
 
   return (
@@ -110,7 +117,10 @@ export type AdminTools = {
   clearUserQueue  : (userId:string) => any,
   suspendUser     : (userId:string, duration:number) => any,
   banUser         : (userId:string) => any,
-  unbanUser       : (userId:string) => any
+  unbanUser       : (userId:string) => any,
+  showSettings    : boolean,
+  openSettings    : () => any,
+  closeSettings   : () => any
 };
 
 // The admin property is also checked serverside.
@@ -127,6 +137,9 @@ const notAdmin:AdminTools = {
   suspendUser     : () => { alert("You are not an admin!"); },
   banUser         : () => { alert("You are not an admin!"); },
   unbanUser       : () => { alert("You are not an admin!"); },
+  openSettings    : () => { alert("You are not an admin!"); },
+  closeSettings   : () => { alert("You are not an admin!"); },
+  showSettings    : false,
   toolboxData     : noToolboxData
 }
 
