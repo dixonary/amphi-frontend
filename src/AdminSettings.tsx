@@ -364,7 +364,9 @@ const AuditItem = ({data, openToolbox}:any) => {
       <span className="action">suspended</span>
       {' '}
       <span className="video-id">{data.userId}</span>
+      {' '}
       <span className="action">until</span>
+      {' '}
       <span className="until">{data.until}</span>
     </>)} 
 

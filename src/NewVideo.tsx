@@ -48,9 +48,7 @@ const NewVideo = ({setAccordion, inputRef}:any) => {
     setAccordion("my-queue");
   }
 
-  console.log(user.firebaseUser);
   if(user.firebaseUser === undefined || user.firebaseUser === null) {
-    console.log("Undefined!");
     return (<p>Sign in to add videos to your queue.</p>);
   }
 

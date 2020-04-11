@@ -71,7 +71,7 @@ const AdminToolsProvider = ({children}:any) => {
   const suspendUser = async (userId:string, duration:number) => {
     const until = Date.now() + duration*1000;
     await firebase.database().ref(`users/${userId}/status`).set(until);
-    await audit({type:"suspend", until:new Date(until).toLocaleString, userId});
+    await audit({type:"suspend", until:new Date(until).toLocaleString(), userId});
     await clearUserQueue(userId, false);
   }
   const banUser = async (userId:string) => {
