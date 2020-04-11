@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Accordion, Card,Spinner, Button } from "react-bootstrap";
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
@@ -14,14 +14,16 @@ import convertDuration from "./ConvertDuration";
 
 const Sidebar = () => {
   const [activeKey, setActiveKey] = useState("my-queue");
+  const inputRef = useRef<HTMLElement>(null);
 
-  const active = (key:string) => {
-    if(activeKey === key) {
-      setActiveKey("");
-    }
-    else {
-      setActiveKey(key);
-    }
+  const focusInput= () => inputRef.current !== null && inputRef.current.focus();
+
+  const activate = (key:string) => {
+    // We have to set a timeout here so that focus() knows the input is visible
+    if(key === 'new-video') setTimeout(focusInput,100);
+
+    if(activeKey === key)   setActiveKey("");
+    else                    setActiveKey(key);
   }
 
   return (<>
@@ -49,7 +51,7 @@ const Sidebar = () => {
                 as="a" 
                 variant="link" 
                 eventKey="my-queue"
-                onClick={() => active("my-queue")}
+                onClick={() => activate("my-queue")}
             >
               My Queue
             </Accordion.Toggle>
@@ -67,14 +69,14 @@ const Sidebar = () => {
                 as="a" 
                 variant="link" 
                 eventKey="new-video"
-                onClick={() => active("new-video")}
+                onClick={() => {activate("new-video"); }}
             >
               Add a Song
             </Accordion.Toggle>
           </Card.Header>
           <Accordion.Collapse eventKey="new-video">
             <Card.Body className="">
-              <NewVideo setAccordion={setActiveKey} />
+              <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
             </Card.Body>
           </Accordion.Collapse>
         </Card>

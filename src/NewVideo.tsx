@@ -10,7 +10,7 @@ import { UserContext }  from "./UserProvider";
 import { QueueContext } from "./QueueProvider";
 
 
-const NewVideo = ({setAccordion}:any) => {
+const NewVideo = ({setAccordion, inputRef}:any) => {
   const [inputVal , setInputVal]   = useState("");
   const [error    , setError   ]   = useState("");
   const [videoId  , setVideoId ]   = useState("");  
@@ -65,6 +65,7 @@ const NewVideo = ({setAccordion}:any) => {
     <>
       <div className="input-group">
       <input 
+        ref={inputRef}
         className="form-control"
         name="yt-video"
         value={inputVal} 
