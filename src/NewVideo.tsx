@@ -73,7 +73,6 @@ const NewVideo = ({setAccordion, inputRef}:any) => {
         type="text"
         placeholder="Youtube ID or URL..."
         autoComplete="off"
-        autoFocus
       />
       </div>
       {error && (<Alert variant="danger">{error}</Alert>)}
