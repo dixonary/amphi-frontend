@@ -158,14 +158,16 @@ a.btn.blocky {
 }
 
 .sidebar .card-body {
-  padding:15px;
+  padding:1rem;
   flex-basis: 0;
   overflow-y: auto;
 }
 
 .sidebar .now-playing .card-body {
-  padding:0.5rem;
   flex-basis:unset;
+}
+.sidebar .now-playing p {
+  margin:0;
 }
 .sidebar .now-playing .video-details {
   padding:0;
