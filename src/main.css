@@ -454,6 +454,14 @@ input[type=checkbox] {
   background:#222528;
 }
 
+.admin-settings .modal-body {
+  padding:0;
+}
+
+.admin-settings .card {
+  border:0;
+}
+
 .admin-settings .numeric-control {
   display:flex;
 }
@@ -556,6 +564,49 @@ input[type=checkbox] {
 .admin-settings .user-list .btn.tools.admin {
   position:static;
   transform:none;
+}
+.audit-log .card-header {
+  background-color:#2D3338;
+}
+.audit-log .card-body {
+  padding:0;
+}
+.audit-item {
+  padding:0.5rem;
+  font-family: sans-serif;
+  font-size:0.8rem;
+  color:#ddd;
+  background-color:#2D3338;
+  cursor:pointer;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.audit-item svg {
+  margin-right:auto;
+}
+.audit-item .actor {
+  font-weight:bold;
+  color:var(--yellow);
+}
+.audit-item .video-id {
+  font-weight:bold;
+  color:var(--blue);
+}
+.audit-item .user-id {
+  font-weight:bold;
+  color:var(--yellow);
+}
+
+.audit-item .icon {
+  display:inline-block;
+  margin-right:0.25rem;
+}
+
+.audit-item .setting {
+  font-weight:bold;
+  text-transform:capitalize;
+}
+.audit-item .value {
+  font-weight: bold;
 }
 
 /* Large or smaller!*/

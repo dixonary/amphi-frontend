@@ -131,7 +131,7 @@ const NowPlayingSidebar = () => {
           as="a" 
           className="delete admin" 
           variant="dark" 
-          onClick={() => playNextVideo()}
+          onClick={() => playNextVideo(nowPlaying.video)}
       >
         <SkipNext />    
       </Button>
