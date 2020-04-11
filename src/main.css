@@ -565,9 +565,6 @@ input[type=checkbox] {
   position:static;
   transform:none;
 }
-.audit-log .card-header {
-  background-color:#2D3338;
-}
 .audit-log .card-body {
   padding:0;
 }

@@ -6,22 +6,24 @@ import { useObjectVal } from "react-firebase-hooks/database";
 
 type UserState = { 
   firebaseUser: firebase.User | undefined,
-  userData    : any 
+  userData    : any,
+  error       : firebase.auth.Error | undefined
 };
 const noUserState = { 
   firebaseUser: undefined, 
-  userData    : undefined
+  userData    : undefined,
+  error       : undefined
 }
 
 const UserContext = React.createContext<UserState>(noUserState);
 
 const UserProvider = ({children}:any) => {
-  const [ user ]  = useAuthState(firebase.auth());
+  const [ user, loading, error ]  = useAuthState(firebase.auth());
   const [ udata ] = useObjectVal(firebase.database().ref(`users/${user?.uid}`));
 
   return (
     <UserContext.Provider
-      value={{firebaseUser:user, userData:udata }}
+      value={{error, firebaseUser:user, userData:udata }}
     >
       {children}
     </UserContext.Provider>

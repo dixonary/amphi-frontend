@@ -3,6 +3,11 @@ import { UserContext } from "./UserProvider";
 import firebase from "firebase";
 import { NowPlayingContext } from "./NowPlayingProvider";
 
+// Administrators are considered trusted, priveleged users who have
+// few restrictions on the actions they can take.
+// In principle an administrator could do almost anything ehey wanted, and
+// the tools provided here do not mitigate that.
+
 const AdminToolsProvider = ({children}:any) => {
   const currentUser = useContext(UserContext);
   const nowPlaying  = useContext(NowPlayingContext);
