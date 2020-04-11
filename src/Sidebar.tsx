@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Accordion, Card, Tooltip, OverlayTrigger, Navbar, Spinner, Button } from "react-bootstrap";
+import { Accordion, Card,Spinner, Button } from "react-bootstrap";
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
 import Playlist from "./Playlist";
@@ -8,7 +8,6 @@ import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import firebase from "firebase";
-import { AdminButton } from "./User";
 import { SkipNext, Assignment } from "@material-ui/icons";
 import convertDuration from "./ConvertDuration";
 
@@ -106,18 +105,13 @@ const NowPlayingSidebar = () => {
     getVideoData();
   }, [nowPlaying]);
 
-  const tryOpenToolbox = () => 
-    openToolbox({
-      video:nowPlaying?.video    ?? null, 
-      user :nowPlaying?.queuedBy ?? null
-    });
 
   if(nowPlaying === null || nowPlaying === undefined) return (<>
     <p>No song is currently playing.</p>
   </>);
   return (
     <div className="video-details">
-    {videoData == null || videoData == undefined
+    {videoData === null || videoData === undefined
     ? (<Spinner animation="border" />)
     :
       (<>

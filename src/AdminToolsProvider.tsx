@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "./UserProvider";
 import firebase from "firebase";
+import { NowPlayingContext } from "./NowPlayingProvider";
 
 const AdminToolsProvider = ({children}:any) => {
   const currentUser = useContext(UserContext);
+  const nowPlaying  = useContext(NowPlayingContext);
   const [ isAdmin, setIsAdmin ] = useState<any>(null);
   const [ toolboxData, setToolboxData ] = useState<ToolboxData>(noToolboxData);
   const [ showSettings, setShowSettings ] = useState<boolean>(false);
@@ -34,7 +36,9 @@ const AdminToolsProvider = ({children}:any) => {
   };
 
   const blacklistVideo = async (vidId:string) => {
-    await playNextVideo();
+    if(nowPlaying?.video === vidId) {
+      await playNextVideo();
+    }
     await firebase.database().ref(`blacklist/${vidId}`).set(true);
   }
   const unblacklistVideo = async (vidId:string) => {
