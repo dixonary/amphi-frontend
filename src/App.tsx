@@ -14,7 +14,7 @@ import {UserBox, LoginCallback, AdminButton} from './User';
 import { UserProvider } from './UserProvider';
 import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
 import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
-import { Close, Assignment, SkipNext, Settings } from '@material-ui/icons';
+import { Close, Settings } from '@material-ui/icons';
 
 /******************************************************************************/
 /* Constants */
@@ -78,9 +78,8 @@ const AdminSettingsButton = () => {
 }
 
 const NowPlayingText = () => {
-  const nowPlaying                              = useContext(NowPlayingContext);
-  const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
-  const [ videoData, setVideoData ]             = useState<any>(null);
+  const nowPlaying                  = useContext(NowPlayingContext);
+  const [ videoData, setVideoData ] = useState<any>(null);
 
   useEffect(() => {
     if(nowPlaying?.video === undefined) {
@@ -105,33 +104,15 @@ const NowPlayingText = () => {
     </Tooltip>
   );
 
-  const tryOpenToolbox = () => 
-    openToolbox({
-      video:nowPlaying?.video    ?? null, 
-      user :nowPlaying?.queuedBy ?? null
-    });
-
   if(videoData === null || videoData === undefined) return (<></>);
-  return (<>
-    {/* {isAdmin && (<>
-      <AdminButton
-        tooltipText="Skip video"
-        icon={(<SkipNext />)}
-        callback={playNextVideo} 
-      />
-      <AdminButton 
-        tooltipText="Tools"
-        icon={(<Assignment />)}
-        callback={tryOpenToolbox}
-      />
-    </>)} */}
+  return (
     <OverlayTrigger
       placement="bottom"
       overlay={tooltip}
       >
       <Navbar.Text>{videoData.title}</Navbar.Text>
     </OverlayTrigger>
-  </>)
+  )
 };
 
 const UnderConstructionNotice = () => {
