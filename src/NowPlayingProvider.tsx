@@ -1,29 +1,29 @@
 import React from "react";
 import firebase from "firebase";
 import { useObjectVal } from "react-firebase-hooks/database/";
- 
-const NowPlayingContext = React.createContext<NowPlaying | undefined>(undefined);
+
+const NowPlayingContext = React.createContext<NowPlaying | undefined>(
+  undefined
+);
 
 export type NowPlaying = {
-    video:string,
-    queuedBy:string,
-    seconds:number,
-    queuedAt:number,
-    startedAt:number,
-    queuedByDisplayName:string
+  video: string;
+  queuedBy: string;
+  seconds: number;
+  queuedAt: number;
+  startedAt: number;
+  queuedByDisplayName: string;
 };
 
-const NowPlayingProvider = ({children}:any) => {
-  const nowPlayingRef = firebase.database().ref('currentVideo');
-  const [ nowPlaying ] = useObjectVal<NowPlaying>(nowPlayingRef);
-  
+const NowPlayingProvider = ({ children }: any) => {
+  const nowPlayingRef = firebase.database().ref("currentVideo");
+  const [nowPlaying] = useObjectVal<NowPlaying>(nowPlayingRef);
+
   return (
-    <NowPlayingContext.Provider
-      value={nowPlaying}
-    >
+    <NowPlayingContext.Provider value={nowPlaying}>
       {children}
     </NowPlayingContext.Provider>
   );
-}
+};
 
-export { NowPlayingContext, NowPlayingProvider }
+export { NowPlayingContext, NowPlayingProvider };

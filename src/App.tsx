@@ -1,38 +1,32 @@
-import React, {useEffect, useContext, useState, useRef} from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-} from 'react-router-dom'
-import firebase from 'firebase';
-import { Navbar, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import React, { useEffect, useContext, useState, useRef } from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import firebase from "firebase";
+import { Navbar, Tooltip, OverlayTrigger } from "react-bootstrap";
 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './main.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./main.css";
 
-import Main from './Main';
-import {UserBox, LoginCallback, AdminButton} from './User';
-import { UserProvider } from './UserProvider';
-import AdminToolsProvider, { AdminToolsContext } from './AdminToolsProvider';
-import { NowPlayingProvider, NowPlayingContext } from './NowPlayingProvider';
-import { Close, Settings } from '@material-ui/icons';
+import Main from "./Main";
+import { UserBox, LoginCallback, AdminButton } from "./User";
+import { UserProvider } from "./UserProvider";
+import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
+import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
+import { Close, Settings } from "@material-ui/icons";
 
 /******************************************************************************/
 /* Constants */
-const UnderConstruction:boolean = false;
-
-
+const UnderConstruction: boolean = false;
 
 /******************************************************************************/
 /* Main application logic */
 
 function App() {
-
   firebase.initializeApp({
-    projectId:     "amphi-compsoc",
-    apiKey:        "AIzaSyCOXtTbrBZ3qAKlfBHPh1t5KzPYqLA3CZU", // Auth / General Use
-    authDomain:    "amphi-compsoc.firebaseapp.com",           // Auth with popup/redirect
-    databaseURL:   "https://amphi-compsoc.firebaseio.com",    // Realtime Database
-    storageBucket: "amphi-compsoc.appspot.com",               // Storage
+    projectId: "amphi-compsoc",
+    apiKey: "AIzaSyCOXtTbrBZ3qAKlfBHPh1t5KzPYqLA3CZU", // Auth / General Use
+    authDomain: "amphi-compsoc.firebaseapp.com", // Auth with popup/redirect
+    databaseURL: "https://amphi-compsoc.firebaseio.com", // Realtime Database
+    storageBucket: "amphi-compsoc.appspot.com", // Storage
   });
 
   return (
@@ -40,95 +34,95 @@ function App() {
       <NowPlayingProvider>
         <UserProvider>
           <AdminToolsProvider>
-              <Header />
-              <Main />
+            <Header />
+            <Main />
           </AdminToolsProvider>
         </UserProvider>
       </NowPlayingProvider>
     </Router>
   );
-
 }
 
-const Header = () => (<>
-  <Navbar expand="lg" variant="dark" bg="dark">
-    <Navbar.Brand>AMPHI</Navbar.Brand>
-    <AdminSettingsButton />
-    <Navbar.Toggle />
-    <Navbar.Collapse>
-      <NowPlayingText />
-      <Route path="/auth/login" component={LoginCallback} />
-      <Route exact path="/" component={UserBox} />
-    </Navbar.Collapse>
-  </Navbar>
-  { UnderConstruction && (<UnderConstructionNotice />) }
-</>);
+const Header = () => (
+  <>
+    <Navbar expand="lg" variant="dark" bg="dark">
+      <Navbar.Brand>AMPHI</Navbar.Brand>
+      <AdminSettingsButton />
+      <Navbar.Toggle />
+      <Navbar.Collapse>
+        <NowPlayingText />
+        <Route path="/auth/login" component={LoginCallback} />
+        <Route exact path="/" component={UserBox} />
+      </Navbar.Collapse>
+    </Navbar>
+    {UnderConstruction && <UnderConstructionNotice />}
+  </>
+);
 
 const AdminSettingsButton = () => {
   const { isAdmin, openSettings } = useContext(AdminToolsContext);
-  return (<>
-    {isAdmin && (
-      <AdminButton 
-      tooltipText="Settings"
-      icon={(<Settings />)}
-      callback={openSettings}
-    />
-    )}
-  </>)
-}
+  return (
+    <>
+      {isAdmin && (
+        <AdminButton
+          tooltipText="Settings"
+          icon={<Settings />}
+          callback={openSettings}
+        />
+      )}
+    </>
+  );
+};
 
 const NowPlayingText = () => {
-  const nowPlaying                  = useContext(NowPlayingContext);
-  const [ videoData, setVideoData ] = useState<any>(null);
+  const nowPlaying = useContext(NowPlayingContext);
+  const [videoData, setVideoData] = useState<any>(null);
 
   useEffect(() => {
-    if(nowPlaying?.video === undefined) {
+    if (nowPlaying?.video === undefined) {
       setVideoData(undefined);
+      window.document.title = "Amphi";
       return;
-    };
+    }
     const getVideoData = async () => {
-      const vidData = await firebase.database()
-          .ref(`videos/${nowPlaying.video}`)
-          .once('value');
+      const vidData = await firebase
+        .database()
+        .ref(`videos/${nowPlaying.video}`)
+        .once("value");
+      window.document.title = `${vidData.val().title} - Amphi`;
       setVideoData(vidData.val());
     };
     getVideoData();
   }, [nowPlaying]);
 
-  const tooltip = (props:any) => (
-    <Tooltip 
-      id={`now-playing-tooltip`}
-      {...props}
-    >
+  const tooltip = (props: any) => (
+    <Tooltip id={`now-playing-tooltip`} {...props}>
       Queued by {nowPlaying?.queuedByDisplayName}
     </Tooltip>
   );
 
-  if(videoData === null || videoData === undefined) return (<></>);
+  if (videoData === null || videoData === undefined) return <></>;
   return (
-    <OverlayTrigger
-      placement="bottom"
-      overlay={tooltip}
-      >
+    <OverlayTrigger placement="bottom" overlay={tooltip}>
       <Navbar.Text>{videoData.title}</Navbar.Text>
     </OverlayTrigger>
-  )
+  );
 };
 
 const UnderConstructionNotice = () => {
   const noticeRef = useRef<HTMLDivElement>(null);
-  
+
   const killNotice = () => {
-    if(noticeRef?.current !== null) {
+    if (noticeRef?.current !== null) {
       noticeRef.current.remove();
     }
-  }
-  
+  };
+
   return (
     <div className="notice" ref={noticeRef}>
       <p>
-        This site is being actively developed. 
-        Things may change or behave strangely without warning.
+        This site is being actively developed. Things may change or behave
+        strangely without warning.
       </p>
       <button className="closer" onClick={killNotice}>
         <Close />
