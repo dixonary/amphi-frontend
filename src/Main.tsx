@@ -77,7 +77,7 @@ const Player = () => {
       //     event.target.playVideo();
       //   }, 1000);
       // }}
-      onStateChange={(event) => {
+      onPause={(event) => {
         intervalRef.current = setInterval(() => {
           event.target.playVideo();
         }, 1000);
