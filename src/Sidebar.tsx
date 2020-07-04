@@ -29,27 +29,27 @@ const Sidebar = () => {
   return (
     <>
       <QueueProvider>
-        <Card bg="dark" className="now-playing">
-          <Card.Header>
-            <Accordion.Toggle as="a" eventKey="__">
-              Now Playing
-            </Accordion.Toggle>
-          </Card.Header>
-          <Card.Body>
-            <NowPlayingSidebar />
-          </Card.Body>
-        </Card>
-        <Card bg="dark" className="playlist">
-          <Card.Header>
-            <Accordion.Toggle as="a" eventKey="__">
-              Playlist
-            </Accordion.Toggle>
-          </Card.Header>
-          <Card.Body>
-            <Playlist />
-          </Card.Body>
-        </Card>
         <Accordion activeKey={activeKey.toString()}>
+          <Card bg="dark" className="now-playing">
+            <Card.Header>
+              <Accordion.Toggle as="a" eventKey="__">
+                Now Playing
+              </Accordion.Toggle>
+            </Card.Header>
+            <Card.Body>
+              <NowPlayingSidebar />
+            </Card.Body>
+          </Card>
+          <Card bg="dark" className="playlist">
+            <Card.Header>
+              <Accordion.Toggle as="a" eventKey="__">
+                Playlist
+              </Accordion.Toggle>
+            </Card.Header>
+            <Card.Body>
+              <Playlist />
+            </Card.Body>
+          </Card>
           <Card bg="dark" className="my-queue">
             <Card.Header>
               <Accordion.Toggle
