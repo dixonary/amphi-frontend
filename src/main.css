@@ -493,6 +493,12 @@ input[type="checkbox"] {
   color: var(--blue);
 }
 
+.accordion {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .accordion .card-header {
   padding: 0;
 }
@@ -612,6 +618,9 @@ input[type="checkbox"] {
     align-items: center;
     margin-bottom: 15px;
     justify-content: space-between;
+  }
+  .video-wrapper {
+    min-height: 25rem;
   }
   .video-details .title {
     margin-right: 0.5rem;
