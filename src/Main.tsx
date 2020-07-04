@@ -72,15 +72,17 @@ const Player = () => {
       }}
       key={nowPlaying?.startedAt ?? "video"}
       onPlay={startedPlaying}
-      // onPause={(event) => {
-      //   intervalRef.current = setInterval(() => {
-      //     event.target.playVideo();
-      //   }, 1000);
-      // }}
-      onPause={(event) => {
-        intervalRef.current = setInterval(() => {
-          event.target.playVideo();
-        }, 1000);
+      onStateChange={(event) => {
+        switch (event.data) {
+          case 2: // paused
+            // unpause
+            event.target.playVideo();
+            break;
+          case 3: // buffering
+            // wait 1s then try playing
+            setTimeout(() => event.target.playVideo(), 1000);
+            break;
+        }
       }}
       onEnd={() => {}}
     />
