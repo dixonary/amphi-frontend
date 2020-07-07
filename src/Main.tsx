@@ -44,10 +44,11 @@ const Player = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     const now = Date.now(); // now in ms
 
-    // where it should be
+    // where it isn't
     const shouldBe = now - nowPlaying.startedAt;
 
-    // where it should be vs where it is
+    // by subtracting where it is from where it isn't (or where it isn't from
+    // where it is, whichever is greater) it obtains a difference, or deviation.
     const msDiff = shouldBe - target.getCurrentTime() * 1000;
 
     if (Math.abs(msDiff) > 2000) {
@@ -73,6 +74,8 @@ const Player = () => {
       key={nowPlaying?.startedAt ?? "video"}
       onPlay={startedPlaying}
       onStateChange={(event) => {
+        console.log("===Debug information===");
+        console.log(event);
         switch (event.data) {
           case 2: // paused
             // unpause
@@ -80,7 +83,10 @@ const Player = () => {
             break;
           case 3: // buffering
             // wait 1s then try playing
-            setTimeout(() => event.target.playVideo(), 1000);
+            setTimeout(
+              () => event.target.seekTo(event.target.getCurrentTime() + 1),
+              1000
+            );
             break;
         }
       }}
