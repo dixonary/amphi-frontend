@@ -299,15 +299,16 @@ p.display-name {
   right: 5px;
   padding: 7.5px;
   color: var(--yellow);
+  background-color: #505458;
 }
 .video-details .btn.tools {
   transform: translateY(-50%) translateX(calc(-100% - 7.5px));
 }
 .btn.admin {
-  color: darkred;
+  color: #c20000;
 }
 .btn.admin:active {
-  color: darkred;
+  color: #c20000;
 }
 .btn.delete:active {
   color: var(--yellow);
@@ -411,11 +412,11 @@ p.now-playing {
   color: orangered;
 }
 .red {
-  color: darkred;
+  color: #c20000;
 }
 
 .modal-body .btn-primary {
-  background-color: darkred;
+  background-color: #c20000;
   border: none;
   display: block;
   margin-top: 1rem;
@@ -461,6 +462,11 @@ input[type="checkbox"] {
   height: 1.5rem;
   vertical-align: middle;
   background: #222528;
+}
+
+.modal-dialog {
+  max-width: min(1000px, calc(100% - 2rem)) !important;
+  width: 100%;
 }
 
 .admin-settings .modal-body {
@@ -654,6 +660,11 @@ input[type="checkbox"] {
   .video-details .info {
     margin-top: 0;
     margin-left: 15px;
+  }
+
+  .modal-dialog {
+    max-width: calc(100% - 2rem) !important;
+    width: 100%;
   }
 
   #root {
