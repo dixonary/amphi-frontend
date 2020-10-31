@@ -134,12 +134,28 @@ const ConstantsSettings = ({ audit }: any) => (
       valueRef={firebase.database().ref("settings/maxPlayTime")}
       label="Maximum play time in seconds (0 to disable)"
       shortLabel="max play time"
+      dimension="seconds"
       audit={audit}
     />
     <NumericControl
       valueRef={firebase.database().ref("settings/minTimeDiff")}
       label="Minimum time diff between playing a video and allowing it to be queued again (0 to disable)"
       shortLabel="min replay time"
+      dimension="seconds"
+      audit={audit}
+    />
+    <NumericControl
+      valueRef={firebase.database().ref("settings/skipMinPct")}
+      label="Minimum proportion (0-100) of users who must voteskip to autoskip a video"
+      shortLabel="min autoskip pct"
+      dimension="%"
+      audit={audit}
+    />
+    <NumericControl
+      valueRef={firebase.database().ref("settings/skipMinViewers")}
+      label="Minimum number of viewers who must voteskip to autoskip a video"
+      shortLabel="min autoskip number"
+      dimension="viewers"
       audit={audit}
     />
   </>
@@ -148,6 +164,7 @@ const ConstantsSettings = ({ audit }: any) => (
 type NumericControlData = {
   valueRef: firebase.database.Reference;
   label: string;
+  dimension: string;
   shortLabel: string;
   audit: (data: any) => any;
 };
@@ -191,7 +208,7 @@ const NumericControl = (data: NumericControlData) => {
           onChange={(e) => setVal(e.currentTarget.value)}
         />
         <InputGroup.Append>
-          <InputGroup.Text>seconds</InputGroup.Text>
+          <InputGroup.Text>{data.dimension}</InputGroup.Text>
         </InputGroup.Append>
       </InputGroup>
     </Form.Group>

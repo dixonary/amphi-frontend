@@ -1,5 +1,18 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
-import { Accordion, Card, Spinner, Button } from "react-bootstrap";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
+import {
+  Accordion,
+  Card,
+  Spinner,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
 import Playlist from "./Playlist";
@@ -10,12 +23,14 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 import firebase from "firebase";
 import { SkipNext, Assignment } from "@material-ui/icons";
 import convertDuration from "./ConvertDuration";
-import { useObjectVal } from "react-firebase-hooks/database";
+import { useObject, useObjectVal } from "react-firebase-hooks/database";
 import { UserContext, UserState } from "./UserProvider";
 import { Visibility } from "@material-ui/icons";
+import { database } from "firebase-functions/lib/providers/firestore";
 
 const Sidebar = () => {
   const [activeKey, setActiveKey] = useState("my-queue");
+  const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
 
   const focusInput = () =>
@@ -37,8 +52,10 @@ const Sidebar = () => {
             <Card.Header>
               <Accordion.Toggle as="a" eventKey="__">
                 <div className="now-playing-heading-flex">
-                  Now Playing
+                  <span style={{ flex: 1 }}>Now Playing</span>
                   <CurrentViewers />
+                  {isAdmin && <CurrentSkips />}
+                  <HasVoteskipped />
                 </div>
               </Accordion.Toggle>
             </Card.Header>
@@ -101,9 +118,21 @@ const Sidebar = () => {
 };
 
 const NowPlayingSidebar = () => {
+  const userData = useContext(UserContext);
   const nowPlaying = useContext(NowPlayingContext);
   const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
   const [videoData, setVideoData] = useState<any>(null);
+
+  const [hasVoteskipped] = useObjectVal(
+    firebase.database().ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
+  );
+
+  const voteSkip = useCallback(async () => {
+    await firebase
+      .database()
+      .ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
+      .set(true);
+  }, [videoData, userData]);
 
   useEffect(() => {
     if (nowPlaying?.video === undefined) {
@@ -127,46 +156,66 @@ const NowPlayingSidebar = () => {
       </>
     );
   return (
-    <div className="video-details">
-      {videoData === null || videoData === undefined ? (
-        <Spinner animation="border" />
-      ) : (
-        <>
-          <p className="title">{videoData.title}</p>
-          <div className="other-details">
-            <p className="channel-title">
-              {videoData.channelTitle} - {convertDuration(videoData.duration)}
-            </p>
-            <p className="displayName">{nowPlaying?.queuedByDisplayName}</p>
-          </div>
-        </>
-      )}
-      {isAdmin && (
-        <Button
-          as="a"
-          className="delete admin"
-          variant="dark"
-          onClick={() => playNextVideo(nowPlaying.video)}
-        >
-          <SkipNext />
-        </Button>
-      )}
-      {isAdmin && (
-        <Button
-          as="a"
-          className="tools admin"
-          variant="dark"
-          onClick={() =>
-            openToolbox({
-              video: nowPlaying?.video,
-              user: nowPlaying?.queuedBy,
-            })
-          }
-        >
-          <Assignment />
-        </Button>
-      )}
-    </div>
+    <>
+      <div className="video-details">
+        {videoData === null || videoData === undefined ? (
+          <Spinner animation="border" />
+        ) : (
+          <>
+            <p className="title">{videoData.title}</p>
+            <div className="other-details">
+              <p className="channel-title">
+                {videoData.channelTitle} - {convertDuration(videoData.duration)}
+              </p>
+              <p className="displayName">{nowPlaying?.queuedByDisplayName}</p>
+            </div>
+          </>
+        )}
+      </div>
+      <div className="button-row">
+        {isAdmin && (
+          <Tooltipped tooltipText="Skip">
+            <Button
+              as="a"
+              className="delete admin"
+              variant="dark"
+              onClick={() => playNextVideo(nowPlaying.video)}
+            >
+              <SkipNext />
+            </Button>
+          </Tooltipped>
+        )}
+        {isAdmin && (
+          <Tooltipped tooltipText="Open Toolbox">
+            <Button
+              as="a"
+              className="tools admin"
+              variant="dark"
+              onClick={() =>
+                openToolbox({
+                  video: nowPlaying?.video,
+                  user: nowPlaying?.queuedBy,
+                })
+              }
+            >
+              <Assignment />
+            </Button>
+          </Tooltipped>
+        )}
+        {userData.firebaseUser !== undefined && hasVoteskipped !== true && (
+          <Tooltipped tooltipText="Voteskip">
+            <Button
+              as="a"
+              className="voteskip"
+              variant="dark"
+              onClick={voteSkip}
+            >
+              <SkipNext />
+            </Button>
+          </Tooltipped>
+        )}
+      </div>
+    </>
   );
 };
 
@@ -192,4 +241,49 @@ const CurrentViewers = () => {
   );
 };
 
+const CurrentSkips = () => {
+  const numSkipsRef = firebase.database().ref(`voteskip/count`);
+  const [numSkips] = useObjectVal<number>(numSkipsRef);
+
+  if (numSkips === undefined || numSkips === null || numSkips === 0)
+    return <></>;
+  return (
+    <span className="num-skips">
+      {numSkips}
+      <SkipNext />
+    </span>
+  );
+};
+
+const HasVoteskipped = () => {
+  const user = useContext<UserState>(UserContext);
+  const skippedRef = firebase
+    .database()
+    .ref(`voteskip/user${user.firebaseUser?.uid}`);
+
+  const [hasSkipped] = useObjectVal<boolean>(skippedRef);
+
+  if (!user.firebaseUser?.uid) {
+    return <></>;
+  }
+  return hasSkipped === true ? <span>voteskipped</span> : <></>;
+};
+
+const Tooltipped = ({ tooltipText, children }: any) => {
+  const targetRef = useRef(null);
+
+  const tooltip = (props: any) => (
+    <Tooltip id={`button-tooltip-${tooltipText}`} {...props}>
+      {tooltipText}
+    </Tooltip>
+  );
+
+  return (
+    <OverlayTrigger placement="bottom" overlay={tooltip}>
+      {children}
+    </OverlayTrigger>
+  );
+};
+
 export default Sidebar;
+export { Tooltipped };

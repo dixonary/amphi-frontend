@@ -95,7 +95,7 @@ aside.sidebar .playlist {
 .sidebar .card-header > * {
   padding-bottom: 12px;
   padding-left: 20px;
-  padding-right: 20px;
+  padding-right: 12px;
   padding-top: 12px;
   display: block;
 }
@@ -157,14 +157,19 @@ a.btn.blocky {
   min-height: 3rem;
 }
 
-.sidebar .now-playing .num-viewers {
-  flex: 1;
+.sidebar .now-playing .num-viewers,
+.sidebar .now-playing .num-skips {
   text-align: right;
   color: #999;
   display: flex;
   align-items: middle;
   justify-content: flex-end;
 }
+
+.sidebar .now-playing .num-skips {
+  color: var(--yellow);
+}
+
 .sidebar .now-playing .num-viewers .MuiSvgIcon-root {
   margin-right: 0.25rem;
 }
@@ -172,16 +177,35 @@ a.btn.blocky {
 .sidebar .now-playing .now-playing-heading-flex {
   display: flex;
   align-items: middle;
+  justify-content: flex-end;
+}
+.sidebar .now-playing .now-playing-heading-flex *:not(:last-child) {
+  margin-right: 1rem;
 }
 
 .sidebar .now-playing .card-body {
   flex-basis: unset;
+  position: relative;
 }
 .sidebar .now-playing .video-details {
   padding: 0;
   border: none;
   background: transparent;
   margin-bottom: 0;
+}
+
+.sidebar .button-row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.sidebar .button-row > * {
+  margin-right: 0.5rem;
 }
 
 .sidebar .bucket {
@@ -291,18 +315,12 @@ p.display-name {
   white-space: nowrap;
 }
 
-.video-details .btn {
-  visibility: hidden;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 5px;
-  padding: 7.5px;
+.button-row .btn {
+  opacity: 0;
+  padding: 0.5rem 0.75rem;
   color: var(--yellow);
   background-color: #505458;
-}
-.video-details .btn.tools {
-  transform: translateY(-50%) translateX(calc(-100% - 7.5px));
+  transition: 0.1s all;
 }
 .btn.admin {
   color: #c20000;
@@ -313,8 +331,8 @@ p.display-name {
 .btn.delete:active {
   color: var(--yellow);
 }
-.video-details:hover .btn {
-  visibility: visible;
+.button-row:hover .btn {
+  opacity: 1;
 }
 
 .btn.enqueue-video {
