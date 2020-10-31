@@ -73,20 +73,12 @@ aside.sidebar {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-aside.sidebar .playlist {
-  flex: 1 1;
-}
-
-.sidebar {
+  height: 100%;
   padding: 0;
 }
 
-.sidebar .full-queue {
+aside.sidebar .playlist {
   flex-grow: 1;
-  flex-shrink: 1;
-  overflow-y: auto;
 }
 
 .sidebar .card,
@@ -162,6 +154,7 @@ a.btn.blocky {
   padding: 1rem;
   flex-basis: 0;
   overflow-y: auto;
+  min-height: 3rem;
 }
 
 .sidebar .now-playing .num-viewers {
@@ -514,6 +507,8 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 100%;
+  overflow: auto;
 }
 
 .accordion .card-header {
@@ -522,6 +517,10 @@ input[type="checkbox"] {
 .accordion .card-header button {
   display: block;
   width: 100%;
+}
+
+.new-video .collapse {
+  overflow-y: auto;
 }
 
 .admin-settings .master-user-list .card-body {
