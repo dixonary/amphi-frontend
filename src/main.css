@@ -665,8 +665,18 @@ input[type="checkbox"] {
     overflow: visible;
   }
 
+  aside.sidebar .now-playing {
+    order: 1;
+  }
+  aside.sidebar .my-queue {
+    order: 3;
+  }
+  aside.sidebar .new-video {
+    order: 2;
+  }
   aside.sidebar .playlist {
     flex-shrink: 0;
+    order: 4;
   }
 
   aside.sidebar .now-playing .video-details {
