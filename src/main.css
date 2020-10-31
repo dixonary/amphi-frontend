@@ -164,6 +164,23 @@ a.btn.blocky {
   overflow-y: auto;
 }
 
+.sidebar .now-playing .num-viewers {
+  flex: 1;
+  text-align: right;
+  color: #999;
+  display: flex;
+  align-items: middle;
+  justify-content: flex-end;
+}
+.sidebar .now-playing .num-viewers .MuiSvgIcon-root {
+  margin-right: 0.25rem;
+}
+
+.sidebar .now-playing .now-playing-heading-flex {
+  display: flex;
+  align-items: middle;
+}
+
 .sidebar .now-playing .card-body {
   flex-basis: unset;
 }

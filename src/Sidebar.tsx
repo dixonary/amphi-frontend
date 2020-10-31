@@ -10,6 +10,9 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 import firebase from "firebase";
 import { SkipNext, Assignment } from "@material-ui/icons";
 import convertDuration from "./ConvertDuration";
+import { useObjectVal } from "react-firebase-hooks/database";
+import { UserContext, UserState } from "./UserProvider";
+import { Visibility } from "@material-ui/icons";
 
 const Sidebar = () => {
   const [activeKey, setActiveKey] = useState("my-queue");
@@ -33,7 +36,10 @@ const Sidebar = () => {
           <Card bg="dark" className="now-playing">
             <Card.Header>
               <Accordion.Toggle as="a" eventKey="__">
-                Now Playing
+                <div className="now-playing-heading-flex">
+                  Now Playing
+                  <CurrentViewers />
+                </div>
               </Accordion.Toggle>
             </Card.Header>
             <Card.Body>
@@ -161,6 +167,28 @@ const NowPlayingSidebar = () => {
         </Button>
       )}
     </div>
+  );
+};
+
+const CurrentViewers = () => {
+  const user = useContext<UserState>(UserContext);
+  const numViewersRef = firebase.database().ref(`numViewers`);
+  const [numViewers] = useObjectVal<number>(numViewersRef);
+
+  useEffect(() => {
+    const uid = user?.firebaseUser?.uid;
+    if (uid === undefined) return;
+    const ref = firebase.database().ref(`users/${uid}/online`);
+    ref.set(true);
+    ref.onDisconnect().set(false);
+  }, [user]);
+
+  if (numViewers === undefined) return <></>;
+  return (
+    <span className="num-viewers">
+      <Visibility />
+      {numViewers}
+    </span>
   );
 };
 
