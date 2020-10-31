@@ -406,7 +406,11 @@ const AuditLog = ({ openToolbox }: any) => {
           {Object.entries(allAudits)
             .reverse()
             .map(([key, auditData]: any[]) => (
-              <AuditItem key={key} data={auditData} openToolbox={openToolbox} />
+              <AuditItem
+                key={key}
+                data={{ ...auditData, timestamp: key }}
+                openToolbox={openToolbox}
+              />
             ))}
         </>
       )}
@@ -498,6 +502,9 @@ const AuditItem = ({ data, openToolbox }: any) => {
         </>
       )}
       .
+      <span className="timestamp">
+        {new Date(parseInt(data.timestamp)).toLocaleString()}
+      </span>
     </div>
   );
 };

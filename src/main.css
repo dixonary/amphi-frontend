@@ -614,6 +614,8 @@ input[type="checkbox"] {
   padding: 0;
 }
 .audit-item {
+  display: flex;
+  align-items: center;
   padding: 0.5rem;
   font-family: sans-serif;
   font-size: 0.8rem;
@@ -621,6 +623,14 @@ input[type="checkbox"] {
   background-color: #2d3338;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.audit-item > *:not(:last-child) {
+  margin-right: 0.3rem;
+}
+.audit-item .timestamp {
+  flex: 1;
+  color: #666;
+  text-align: right;
 }
 .audit-item svg {
   margin-right: auto;
@@ -640,7 +650,7 @@ input[type="checkbox"] {
 
 .audit-item .icon {
   display: inline-block;
-  margin-right: 0.25rem;
+  margin-right: 0.5rem;
 }
 
 .audit-item .setting {
