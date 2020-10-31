@@ -111,8 +111,8 @@ const VideoData = ({ videoId, resetData }: any) => {
   // (But check if it's already been done first!)
   useEffect(() => {
     const runAsync = async () => {
-      const currentState = await videoRef.once("value");
-      if (currentState.val() === null) {
+      const currentState = (await videoRef.once("value")).val();
+      if (currentState === null) {
         await videoRef.set({ loading: true });
       }
     };

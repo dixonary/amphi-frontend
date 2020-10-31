@@ -76,17 +76,20 @@ const Player = () => {
       onStateChange={(event) => {
         console.log("===Debug information===");
         console.log(event);
+        const player: any = event.target;
         switch (event.data) {
           case 2: // paused
             // unpause
-            event.target.playVideo();
+            player.playVideo();
             break;
           case 3: // buffering
-            // wait 1s then try playing
-            setTimeout(
-              () => event.target.seekTo(event.target.getCurrentTime() + 1),
-              1000
-            );
+            setTimeout(() => {
+              // If we're still buffering, try pulling forward a little
+              if (player.currentState === 3) {
+                player.seekTo(player.getCurrentTime() + 1);
+              }
+              player.playVideo();
+            }, 1000);
             break;
         }
       }}
