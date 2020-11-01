@@ -25,6 +25,10 @@
   color: var(--yellow);
 }
 
+.navbar .switch-mode {
+  margin-right: 1rem;
+}
+
 .navbar .btn:not(.uwcs-signin) {
   line-height: 1;
 }
@@ -661,7 +665,33 @@ input[type="checkbox"] {
   font-weight: bold;
 }
 
-/* Large or smaller!*/
+/******************************************************************************/
+/* NON DEFAULT VIEW MODES */
+
+.view-playlist aside.sidebar {
+  max-width: unset;
+  flex: 1;
+}
+.view-video div.col-lg-9 {
+  max-width: unset;
+  flex: 1;
+}
+nav.view-video {
+  opacity: 0.0001;
+  z-index: 100;
+  position: absolute;
+  width: 100vw;
+  transition: 0.3s all;
+}
+nav.view-video:hover {
+  opacity: 1;
+  transition: 0.1s all;
+}
+
+/******************************************************************************/
+/* MEDIA QUERIES */
+
+/* lg or smaller */
 @media screen and (max-width: 991px) {
   .video-details {
     flex-direction: row;

@@ -1,7 +1,13 @@
-import React, { useEffect, useContext, useState, useRef } from "react";
+import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import firebase from "firebase";
-import { Navbar, Tooltip, OverlayTrigger } from "react-bootstrap";
+import {
+  Navbar,
+  Tooltip,
+  OverlayTrigger,
+  NavItem,
+  Button,
+} from "react-bootstrap";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./main.css";
@@ -11,7 +17,9 @@ import { UserBox, LoginCallback, AdminButton } from "./User";
 import { UserProvider } from "./UserProvider";
 import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
 import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
-import { Close, Settings } from "@material-ui/icons";
+import { Close, Settings, CenterFocusStrong } from "@material-ui/icons";
+import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
+import { Tooltipped } from "./Sidebar";
 
 /******************************************************************************/
 /* Constants */
@@ -31,33 +39,44 @@ function App() {
 
   return (
     <Router>
-      <NowPlayingProvider>
-        <UserProvider>
-          <AdminToolsProvider>
-            <Header />
-            <Main />
-          </AdminToolsProvider>
-        </UserProvider>
-      </NowPlayingProvider>
+      <ModeProvider>
+        <NowPlayingProvider>
+          <UserProvider>
+            <AdminToolsProvider>
+              <Header />
+              <Main />
+            </AdminToolsProvider>
+          </UserProvider>
+        </NowPlayingProvider>
+      </ModeProvider>
     </Router>
   );
 }
 
-const Header = () => (
-  <>
-    <Navbar expand="lg" variant="dark" bg="dark">
-      <Navbar.Brand>AMPHI</Navbar.Brand>
-      <AdminSettingsButton />
-      <Navbar.Toggle />
-      <Navbar.Collapse>
-        <NowPlayingText />
-        <Route path="/auth/login" component={LoginCallback} />
-        <Route exact path="/" component={UserBox} />
-      </Navbar.Collapse>
-    </Navbar>
-    {UnderConstruction && <UnderConstructionNotice />}
-  </>
-);
+const Header = () => {
+  const { currentMode } = useContext(ModeContext);
+  return (
+    <>
+      <Navbar
+        expand="lg"
+        variant="dark"
+        bg="dark"
+        className={modeClass(currentMode)}
+      >
+        <Navbar.Brand>AMPHI</Navbar.Brand>
+        <ToggleModeButton />
+        <AdminSettingsButton />
+        <Navbar.Toggle />
+        <Navbar.Collapse>
+          <NowPlayingText />
+          <Route path="/auth/login" component={LoginCallback} />
+          <Route exact path="/" component={UserBox} />
+        </Navbar.Collapse>
+      </Navbar>
+      {UnderConstruction && <UnderConstructionNotice />}
+    </>
+  );
+};
 
 const AdminSettingsButton = () => {
   const { isAdmin, openSettings } = useContext(AdminToolsContext);
@@ -71,6 +90,35 @@ const AdminSettingsButton = () => {
         />
       )}
     </>
+  );
+};
+
+const ToggleModeButton = () => {
+  const { currentMode, switchMode } = useContext(ModeContext);
+
+  const nextMode = useMemo(() => {
+    switch (currentMode) {
+      case Mode.DEFAULT:
+        return Mode.PLAYLIST_ONLY;
+      case Mode.PLAYLIST_ONLY:
+        return Mode.VIDEO_ONLY;
+      case Mode.VIDEO_ONLY:
+        return Mode.DEFAULT;
+    }
+  }, [currentMode]);
+
+  return (
+    <NavItem>
+      <Tooltipped tooltipText="Switch View Mode">
+        <Button
+          as="a"
+          onClick={() => switchMode(nextMode)}
+          className="switch-mode"
+        >
+          <CenterFocusStrong />
+        </Button>
+      </Tooltipped>
+    </NavItem>
   );
 };
 

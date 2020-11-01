@@ -7,18 +7,29 @@ import Sidebar from "./Sidebar";
 import NoVideo from "./NoVideo";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import AdminSettings from "./AdminSettings";
+import { ModeContext, modeClass, Mode } from "./ModeProvider";
 
 const Main = () => {
+  const { currentMode } = useContext(ModeContext);
+
   return (
-    <Container fluid={true} as="main" className="flex-column text-light">
+    <Container
+      fluid={true}
+      as="main"
+      className={`flex-column text-light ${modeClass(currentMode)}`}
+    >
       <AdminSettings />
       <Row className="main-row">
-        <Col lg={9}>
-          <Player />
-        </Col>
-        <Col lg={3} className="sidebar" as="aside">
-          <Sidebar />
-        </Col>
+        {currentMode !== Mode.PLAYLIST_ONLY && (
+          <Col lg={9}>
+            <Player />
+          </Col>
+        )}
+        {currentMode !== Mode.VIDEO_ONLY && (
+          <Col lg={3} className="sidebar" as="aside">
+            <Sidebar />
+          </Col>
+        )}
       </Row>
     </Container>
   );
