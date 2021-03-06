@@ -123,7 +123,7 @@ const NowPlayingSidebar = () => {
   const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
   const [videoData, setVideoData] = useState<any>(null);
 
-  const [hasVoteskipped] = useObjectVal(
+  const [hasVoteskipped] = useObjectVal<boolean | null>(
     firebase.database().ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
   );
 

@@ -4,7 +4,7 @@ import firebase from "firebase";
 import { useObjectVal } from "react-firebase-hooks/database";
 
 export type UserState = {
-  firebaseUser: firebase.User | undefined;
+  firebaseUser: firebase.User | null | undefined;
   userData: any;
   error: firebase.auth.Error | undefined;
 };

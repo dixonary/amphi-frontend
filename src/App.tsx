@@ -28,15 +28,15 @@ const UnderConstruction: boolean = false;
 /******************************************************************************/
 /* Main application logic */
 
-function App() {
-  firebase.initializeApp({
-    projectId: "amphi-compsoc",
-    apiKey: "AIzaSyCOXtTbrBZ3qAKlfBHPh1t5KzPYqLA3CZU", // Auth / General Use
-    authDomain: "amphi-compsoc.firebaseapp.com", // Auth with popup/redirect
-    databaseURL: "https://amphi-compsoc.firebaseio.com", // Realtime Database
-    storageBucket: "amphi-compsoc.appspot.com", // Storage
-  });
+firebase.initializeApp({
+  projectId: "amphi-compsoc",
+  apiKey: "AIzaSyCOXtTbrBZ3qAKlfBHPh1t5KzPYqLA3CZU", // Auth / General Use
+  authDomain: "amphi-compsoc.firebaseapp.com", // Auth with popup/redirect
+  databaseURL: "https://amphi-compsoc.firebaseio.com", // Realtime Database
+  storageBucket: "amphi-compsoc.appspot.com", // Storage
+});
 
+function App() {
   return (
     <Router>
       <ModeProvider>

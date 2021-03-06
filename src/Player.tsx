@@ -37,6 +37,10 @@ const Player = () => {
   }
 
   const startedPlaying = ({ target }: { target: any }) => {
+
+    // Rubber-banding
+
+    /*
     if (intervalRef.current) clearInterval(intervalRef.current);
     const now = Date.now(); // now in ms
 
@@ -51,6 +55,7 @@ const Player = () => {
       // at least 2 seconds out of sync
       target.seekTo(Math.floor(shouldBe / 1000));
     }
+    */
   };
 
   return (
