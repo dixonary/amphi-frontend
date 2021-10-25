@@ -23,14 +23,13 @@ import { AdminToolsContext } from "./AdminToolsProvider";
 import firebase from "firebase";
 import { SkipNext, Assignment } from "@material-ui/icons";
 import convertDuration from "./ConvertDuration";
-import { useObject, useObjectVal } from "react-firebase-hooks/database";
+import { useObjectVal } from "react-firebase-hooks/database";
 import { UserContext, UserState } from "./UserProvider";
 import { Visibility } from "@material-ui/icons";
-import { database } from "firebase-functions/lib/providers/firestore";
 
 const Sidebar = () => {
   const [activeKey, setActiveKey] = useState("my-queue");
-  const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
+  const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
 
   const focusInput = () =>
@@ -270,8 +269,7 @@ const HasVoteskipped = () => {
 };
 
 const Tooltipped = ({ tooltipText, children }: any) => {
-  const targetRef = useRef(null);
-
+  
   const tooltip = (props: any) => (
     <Tooltip id={`button-tooltip-${tooltipText}`} {...props}>
       {tooltipText}

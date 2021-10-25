@@ -10,7 +10,6 @@
     "client-oauth2": "^4.2.5",
     "cookie-parser": "^1.4.5",
     "firebase": "^8.2.10",
-    "firebase-admin": "^9.5.0",
     "firebase-functions": "^3.11.0",
     "querystring": "^0.2.0",
     "react": "^17.0.1",
