@@ -16,7 +16,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
   const user = useContext(UserContext);
 
   // Regex for youtube video URLs
-  const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
+  const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
   // Regex for youtube IDs only
   const ID_REGEX = /^([\w-]{11})$/;
 
