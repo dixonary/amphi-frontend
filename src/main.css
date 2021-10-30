@@ -158,7 +158,11 @@ a.btn.blocky {
   padding: 1rem;
   flex-basis: 0;
   overflow-y: auto;
-  min-height: 3rem;
+  /* min-height: 3rem; */
+}
+
+.sidebar .now-playing {
+  flex-shrink:0;
 }
 
 .sidebar .now-playing .num-viewers,
@@ -247,9 +251,16 @@ a.btn.blocky {
   margin-bottom: 0;
 }
 
-.my-queue .card-body {
+/* .sidebar .my-queue {
+  flex-shrink:1;
+  flex-basis:0; 
+}*/
+
+.sidebar .my-queue .collapse {
   margin-bottom: -7.5px;
-}
+  overflow-y:auto;
+  height:-webkit-fill-available;
+} 
 
 .video-details {
   display: flex;
@@ -749,7 +760,7 @@ nav.view-video:hover {
   }
 
   aside.sidebar .now-playing .video-details {
-    min-height: 3rem;
+    min-height: 5rem;
   }
 
   aside.sidebar .now-playing .card-body {
