@@ -14,23 +14,33 @@ const Player = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [youtube, setYoutube] = useState<any>(null);
+  const [inDOM, setInDOM] = useState<boolean>(false);
 
   const ready = useCallback(
     ({ target }: { target: any }) => {
       setYoutube(target);
+      setInDOM(true);
     },
-    [setYoutube]
+    [setYoutube, setInDOM]
   );
 
   useEffect(() => {
-    if (nowPlaying === undefined) return;
-    if (nowPlaying === null) return;
+    if (!nowPlaying && inDOM) {
+      setInDOM(false);
+    }
+  }, [setInDOM, nowPlaying]);
+
+  useEffect(() => {
+    if (nowPlaying === undefined || nowPlaying === null || !inDOM) 
+      return;
+
     const ss = Math.floor((Date.now() - nowPlaying.startedAt) / 1000);
     // setStartSeconds(ss);
+    console.log(nowPlaying);
     if (youtube !== null) {
       youtube.loadVideoById({ videoId: nowPlaying.video, startSeconds: ss });
     }
-  }, [nowPlaying, youtube]);
+  }, [nowPlaying, youtube, inDOM]);
 
   if (nowPlaying === undefined || nowPlaying === null) {
     return <NoVideo />;
@@ -60,7 +70,7 @@ const Player = () => {
 
   return (
     <YouTube
-      videoId={"NO_VIDEO"}
+      videoId={undefined}
       className="video"
       containerClassName="video-wrapper"
       opts={{
