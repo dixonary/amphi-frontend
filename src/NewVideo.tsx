@@ -153,14 +153,16 @@ const VideoData = ({ videoId, resetData }: any) => {
     return (
       <>
         <div className="video-details">
-          <div
-            className="thumb-wrapper"
-            style={{
-              backgroundImage: `url(${videoData.thumbnail})`,
-              backgroundPosition: "center center",
-              backgroundSize: "cover",
-            }}
-          >
+          <div className="thumb-sizer">
+            <div
+              className="thumb-wrapper"
+              style={{
+                backgroundImage: `url(${videoData.thumbnail})`,
+                backgroundPosition: "center center",
+                backgroundSize: "cover",
+              }}
+              >
+          </div>
             <p className="duration">{convertDuration(videoData.duration)}</p>
           </div>
           <div className="info">

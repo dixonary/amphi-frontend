@@ -238,6 +238,25 @@ a.btn.blocky {
   margin-bottom: 0;
 }
 
+.sidebar .new-video .video-details {
+  margin-top:0.5rem;
+}
+.view-playlist .new-video .video-details {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+}
+.view-playlist .new-video .video-details .thumb-sizer {
+  flex:1;
+  max-width:calc(15rem);
+  margin-right:1rem;
+}
+.view-playlist.new-video .video-details .thumb-wrapper {
+  height:0;
+  padding-top:56%;
+}
+
+
 .sidebar .video-details {
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -289,6 +308,7 @@ a.btn.blocky {
   width: 100%;
   padding-top: 56.25%;
   height: 0;
+  max-height:5rem;
 }
 
 .video-details .duration {
