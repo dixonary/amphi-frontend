@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { Alert, Spinner, Button } from "react-bootstrap";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { PlaylistAdd } from "@material-ui/icons";
@@ -20,7 +20,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
   // Regex for youtube IDs only
   const ID_REGEX = /^([\w-]{11})$/;
 
-  const updateVideoUrl = async (newVal: string) => {
+  const updateVideoUrl = useCallback(async (newVal: string) => {
     let res;
     setInputVal(newVal);
 
@@ -41,13 +41,45 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
     }
 
     setVideoId("");
-  };
+  }, []);
+
+  
 
   const reset = () => {
     setInputVal("");
     setVideoId("");
     setAccordion("my-queue");
   };
+
+  
+  useEffect(() => {
+    const pasteHandler = async (e: KeyboardEvent) => {
+      if (inputRef.current?.id === document.activeElement?.id) {
+        console.log("Skipping auto paste");
+        return;
+      }
+      console.log(e.key);
+      if (e.ctrlKey && !e.shiftKey && e.key === "v") {
+        e.preventDefault();
+        let clip = "";
+        try {
+          clip = await navigator.clipboard.readText()
+        }
+        catch (e:any) {}
+        console.log(clip);
+        if(clip.match(YT_REGEX) !== null)
+          updateVideoUrl(clip);
+          setAccordion("new-video");
+      }
+    };
+  
+    window.addEventListener('keydown', pasteHandler);
+    return () => {
+      window.removeEventListener('keydown', pasteHandler);
+    };
+  }, [updateVideoUrl]);
+
+
 
   if (user.firebaseUser === undefined || user.firebaseUser === null) {
     return <p>Sign in to add videos to your queue.</p>;
@@ -71,6 +103,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
         <input
           ref={inputRef}
           className="form-control"
+          id="yt-video-input"
           name="yt-video"
           value={inputVal}
           onChange={(e) => updateVideoUrl(e.target.value)}
@@ -138,6 +171,21 @@ const VideoData = ({ videoId, resetData }: any) => {
     resetData();
   };
 
+  useEffect(() => {
+    const enterHandler = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        console.log(videoData?.embeddable);
+        (!(videoData?.embeddable) ? () => { } : enqueue)();
+      }
+    };
+  
+    window.addEventListener('keypress', enterHandler);
+    return () => {
+      window.removeEventListener('keypress', enterHandler);
+    };
+  }, [videoData, enqueue]);
+
+
   if (loading || (videoData?.loading && !videoData.title)) {
     return (
       <div className="video-details">
@@ -146,8 +194,13 @@ const VideoData = ({ videoId, resetData }: any) => {
     );
   }
 
+  
+
   let isProblem: string | null = null;
   if (videoData?.embeddable === false) isProblem = "Video is not embeddable";
+
+  
+
 
   if (videoData !== null) {
     return (
