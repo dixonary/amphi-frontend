@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useMemo,
 } from "react";
 import {
   Accordion,
@@ -54,7 +55,7 @@ const Sidebar = () => {
                 <div className="now-playing-heading-flex">
                   <span style={{ flex: 1 }}>Now Playing</span>
                   <CurrentViewers />
-                  {isAdmin && <CurrentSkips />}
+                  <CurrentSkips />
                   <HasVoteskipped />
                 </div>
               </Accordion.Toggle>
@@ -246,11 +247,26 @@ const CurrentViewers = () => {
 const CurrentSkips = () => {
   const numSkipsRef = firebase.database().ref(`voteskip/count`);
   const [numSkips] = useObjectVal<number>(numSkipsRef);
+  const user = useContext(UserContext);
+  
+  const skippedRef = useMemo(() => !user ? undefined : firebase
+    .database()
+    .ref(`voteskip/user/${user.firebaseUser?.uid}`), [user]);
 
-  if (numSkips === undefined || numSkips === null || numSkips === 0)
+  const [hasSkipped] = useObjectVal<boolean>(skippedRef);
+  
+  const voteSkip = useCallback(async () => {
+    await skippedRef?.set(true);
+  }, [skippedRef]);
+
+  const skip = useMemo(
+    () => hasSkipped ? () => { console.log("Skipped already") } : voteSkip, [hasSkipped]
+  );
+
+  if (!numSkips)
     return <></>;
   return (
-    <span className="num-skips">
+    <span className="num-skips" onClick={ skip } style={{cursor: hasSkipped ? "default" : "pointer"}}>
       {numSkips}
       <SkipNext />
     </span>
@@ -261,7 +277,7 @@ const HasVoteskipped = () => {
   const user = useContext<UserState>(UserContext);
   const skippedRef = firebase
     .database()
-    .ref(`voteskip/user${user.firebaseUser?.uid}`);
+    .ref(`voteskip/user/${user.firebaseUser?.uid}`);
 
   const [hasSkipped] = useObjectVal<boolean>(skippedRef);
 
