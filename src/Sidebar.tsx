@@ -28,6 +28,7 @@ import { UserContext, UserState } from "./UserProvider";
 import { Visibility } from "@material-ui/icons";
 
 const Sidebar = () => {
+  const user = useContext(UserContext);
   const [activeKey, setActiveKey] = useState("my-queue");
   const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
@@ -72,6 +73,7 @@ const Sidebar = () => {
               <Playlist />
             </Card.Body>
           </Card>
+          {user.firebaseUser && (<>
           <Card bg="dark" className="my-queue">
             <Card.Header>
               <Accordion.Toggle
@@ -109,6 +111,7 @@ const Sidebar = () => {
               </Card.Body>
             </Accordion.Collapse>
           </Card>
+          </>)}
         </Accordion>
       </QueueProvider>
       <AdminToolbox />
