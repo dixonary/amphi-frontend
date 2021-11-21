@@ -74,45 +74,47 @@ const Sidebar = () => {
               <Playlist />
             </Card.Body>
           </Card>
-          {user.firebaseUser && (<>
-          <Card bg="dark" className="my-queue">
-            <Card.Header>
-              <Accordion.Toggle
-                as="a"
-                // variant="link"
-                eventKey="my-queue"
-                onClick={() => activate("my-queue")}
-              >
-                My Queue
-              </Accordion.Toggle>
-            </Card.Header>
-            <Accordion.Collapse eventKey="my-queue">
-              <Card.Body className="">
-                <MyQueue />
-              </Card.Body>
-            </Accordion.Collapse>
-          </Card>
+          {user.firebaseUser && (
+            <>
+              <Card bg="dark" className="my-queue">
+                <Card.Header>
+                  <Accordion.Toggle
+                    as="a"
+                    // variant="link"
+                    eventKey="my-queue"
+                    onClick={() => activate("my-queue")}
+                  >
+                    My Queue
+                  </Accordion.Toggle>
+                </Card.Header>
+                <Accordion.Collapse eventKey="my-queue">
+                  <Card.Body className="">
+                    <MyQueue />
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
 
-          <Card bg="dark" className="new-video">
-            <Card.Header>
-              <Accordion.Toggle
-                as="a"
-                // variant="link"
-                eventKey="new-video"
-                onClick={() => {
-                  activate("new-video");
-                }}
-              >
-                Add a Song
-              </Accordion.Toggle>
-            </Card.Header>
-            <Accordion.Collapse eventKey="new-video">
-              <Card.Body className="">
-                <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
-              </Card.Body>
-            </Accordion.Collapse>
-          </Card>
-          </>)}
+              <Card bg="dark" className="new-video">
+                <Card.Header>
+                  <Accordion.Toggle
+                    as="a"
+                    // variant="link"
+                    eventKey="new-video"
+                    onClick={() => {
+                      activate("new-video");
+                    }}
+                  >
+                    Add a Song
+                  </Accordion.Toggle>
+                </Card.Header>
+                <Accordion.Collapse eventKey="new-video">
+                  <Card.Body className="">
+                    <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
+            </>
+          )}
         </Accordion>
       </QueueProvider>
       <AdminToolbox />
@@ -176,7 +178,9 @@ const NowPlayingSidebar = () => {
         )}
       </div>
       <div className="button-row">
-        {isAdmin && (
+        {(isAdmin ||
+          (nowPlaying?.queuedBy &&
+            nowPlaying?.queuedBy === userData?.userData?.uid)) && (
           <Tooltipped tooltipText="Skip">
             <Button
               as="a"
@@ -248,25 +252,38 @@ const CurrentSkips = () => {
   const numSkipsRef = firebase.database().ref(`voteskip/count`);
   const [numSkips] = useObjectVal<number>(numSkipsRef);
   const user = useContext(UserContext);
-  
-  const skippedRef = useMemo(() => !user ? undefined : firebase
-    .database()
-    .ref(`voteskip/user/${user.firebaseUser?.uid}`), [user]);
+
+  const skippedRef = useMemo(
+    () =>
+      !user
+        ? undefined
+        : firebase.database().ref(`voteskip/user/${user.firebaseUser?.uid}`),
+    [user]
+  );
 
   const [hasSkipped] = useObjectVal<boolean>(skippedRef);
-  
+
   const voteSkip = useCallback(async () => {
     await skippedRef?.set(true);
   }, [skippedRef]);
 
   const skip = useMemo(
-    () => hasSkipped ? () => { console.log("Skipped already") } : voteSkip, [hasSkipped]
+    () =>
+      hasSkipped
+        ? () => {
+            console.log("Skipped already");
+          }
+        : voteSkip,
+    [hasSkipped]
   );
 
-  if (!numSkips)
-    return <></>;
+  if (!numSkips) return <></>;
   return (
-    <span className="num-skips" onClick={ skip } style={{cursor: hasSkipped ? "default" : "pointer"}}>
+    <span
+      className="num-skips"
+      onClick={skip}
+      style={{ cursor: hasSkipped ? "default" : "pointer" }}
+    >
       {numSkips}
       <SkipNext />
     </span>
@@ -288,7 +305,6 @@ const HasVoteskipped = () => {
 };
 
 const Tooltipped = ({ tooltipText, children }: any) => {
-  
   const tooltip = (props: any) => (
     <Tooltip id={`button-tooltip-${tooltipText}`} {...props}>
       {tooltipText}
