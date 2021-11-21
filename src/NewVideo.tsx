@@ -65,7 +65,11 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
         try {
           clip = await navigator.clipboard.readText()
         }
-        catch (e:any) {}
+        catch (e: any) {
+          setAccordion("new-video");
+          setTimeout(() => inputRef.current?.focus(), 1);
+          return;
+        }
         console.log(clip);
         if(clip.match(YT_REGEX) !== null)
           updateVideoUrl(clip);
