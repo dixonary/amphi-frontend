@@ -361,7 +361,7 @@ p.display-name {
   white-space: nowrap;
 }
 
-.button-row .btn {
+.now-playing .btn, .video-details .btn {
   opacity: 0;
   padding: 0.5rem 0.75rem;
   color: var(--yellow);
