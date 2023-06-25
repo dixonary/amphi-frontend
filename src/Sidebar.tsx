@@ -22,17 +22,20 @@ import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import firebase from "firebase";
-import { SkipNext, Assignment } from "@material-ui/icons";
+import { SkipNext, Assignment, History } from "@material-ui/icons";
 import convertDuration from "./ConvertDuration";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { UserContext, UserState } from "./UserProvider";
 import { Visibility } from "@material-ui/icons";
+import { RecentlyPlayedModal } from "./RecentlyPlayedModal";
 
 const Sidebar = () => {
   const user = useContext(UserContext);
   const [activeKey, setActiveKey] = useState("my-queue");
   const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
+
+  const [recentlyPlayedVisible, setRecentlyPlayedVisible] = useState(false);
 
   const focusInput = () =>
     inputRef.current !== null && inputRef.current.focus();
@@ -67,7 +70,9 @@ const Sidebar = () => {
           <Card bg="dark" className="playlist">
             <Card.Header>
               <Accordion.Toggle as="a" eventKey="__">
-                Playlist
+                <span style={{ display: "inline" }}>Playlist</span>
+                {user.firebaseUser && (
+                  <Tooltipped tooltipText="Recently Played"><Button className="history-btn" onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
               </Accordion.Toggle>
             </Card.Header>
             <Card.Body>
@@ -118,6 +123,8 @@ const Sidebar = () => {
         </Accordion>
       </QueueProvider>
       <AdminToolbox />
+      {user.userData !== undefined ? <RecentlyPlayedModal visible={recentlyPlayedVisible} closeRecentlyPlayed={() => setRecentlyPlayedVisible(false)} /> : <></>
+      }
     </>
   );
 };
@@ -181,17 +188,17 @@ const NowPlayingSidebar = () => {
         {(isAdmin ||
           (nowPlaying?.queuedBy &&
             nowPlaying?.queuedBy === userData?.userData?.uid)) && (
-          <Tooltipped tooltipText="Skip">
-            <Button
-              as="a"
-              className="delete admin"
-              variant="dark"
-              onClick={() => playNextVideo(nowPlaying.video)}
-            >
-              <SkipNext />
-            </Button>
-          </Tooltipped>
-        )}
+            <Tooltipped tooltipText="Skip">
+              <Button
+                as="a"
+                className="delete admin"
+                variant="dark"
+                onClick={() => playNextVideo(nowPlaying.video)}
+              >
+                <SkipNext />
+              </Button>
+            </Tooltipped>
+          )}
         {isAdmin && (
           <Tooltipped tooltipText="Open Toolbox">
             <Button
@@ -271,8 +278,8 @@ const CurrentSkips = () => {
     () =>
       hasSkipped
         ? () => {
-            console.log("Skipped already");
-          }
+          console.log("Skipped already");
+        }
         : voteSkip,
     [hasSkipped]
   );
@@ -318,5 +325,9 @@ const Tooltipped = ({ tooltipText, children }: any) => {
   );
 };
 
+
 export default Sidebar;
 export { Tooltipped };
+
+
+

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useMemo, useCallback } from "react";
 import {
   Modal,
   ModalBody,
@@ -116,6 +116,19 @@ const AdminSettings = () => {
             <Accordion.Collapse eventKey="4">
               <Card.Body>
                 <AuditLog openToolbox={openToolbox} />
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
+
+          <Card className="additional-buttons">
+            <Card.Header>
+              <Accordion.Toggle as={Button} variant="link" eventKey="5">
+                Additional Options
+              </Accordion.Toggle>
+            </Card.Header>
+            <Accordion.Collapse eventKey="5">
+              <Card.Body>
+                <AdditionalButtons openToolbox={openToolbox} />
               </Card.Body>
             </Accordion.Collapse>
           </Card>
@@ -508,5 +521,37 @@ const AuditItem = ({ data, openToolbox }: any) => {
     </div>
   );
 };
+
+const AdditionalButtons = ({ openToolbox } : any) => {
+
+  const [displayName, setDisplayName] = useState("");
+  const [result, setResult] = useState("");
+
+  const bespokeLogin = useMemo(() => `https://${window.location.host}/auth/bespoke-login?q=${result}`, [result]);
+
+  const createNonAffiliatedUser = useCallback(async () => {
+    let code = (await firebase.functions().httpsCallable("admin_createNonAffiliatedUser")({displayName})).data;
+    setResult(code);
+  }, [displayName]);
+
+  return (<>
+    <Form>
+      <Form.Label>
+        Create a non-affiliated user
+      </Form.Label>
+      <Form.Control value={displayName} onChange={(e) => setDisplayName(e.target.value)} type="text"></Form.Control>
+      <Form.Text>User name</Form.Text>
+    </Form>
+    <Button as="a" onClick={createNonAffiliatedUser}>Create non-affiliated user</Button>
+    {result !== "" && (
+      <>
+      <Form>
+        <Form.Text>Share this login URL to the user:</Form.Text>
+        <Form.Control value={bespokeLogin}></Form.Control>
+      </Form>
+      </>
+    )}
+  </>)
+}
 
 export default AdminSettings;

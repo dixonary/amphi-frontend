@@ -128,4 +128,30 @@ const LoginCallback = () => {
   );
 };
 
-export { UserBox, login, logout, LoginCallback, AdminButton };
+
+const firebaseBespokeLogin = async ({ code }: any) => {
+  // const host = escape(window.location.origin);
+  // const response = await fetch(`${AUTH__ENDPOINT}?host=${host}&code=${code}`);
+  // if (!response.ok) throw new Error(response.status.toString());
+  // const data = await response.json();
+
+  await firebase.auth().signInWithCustomToken(code);
+
+  return code;
+};
+
+const BespokeLoginCallback = () => {
+  const code = useQuery().get("q");
+  // const {data, error, isPending} = useAsync({promiseFn:firebaseLogin, code: (query.get('code') ?? ""});
+  const { data } = useAsync({ promiseFn: firebaseBespokeLogin, code });
+
+  return (
+    <Navbar.Collapse className="justify-content-end">
+      <Navbar.Text>Logging in custom user...</Navbar.Text>
+      <Spinner variant="light" animation="border" role="status" />
+      {data && <Redirect to="/" />}
+    </Navbar.Collapse>
+  );
+};
+
+export { UserBox, login, logout, BespokeLoginCallback, LoginCallback, AdminButton };

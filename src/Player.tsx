@@ -71,8 +71,7 @@ const Player = () => {
   return (
     <YouTube
       videoId={undefined}
-      className="video"
-      containerClassName="video-wrapper"
+      className="video-wrapper"
       opts={{
         height: "100%",
         width: "100%",
@@ -85,8 +84,8 @@ const Player = () => {
       onReady={ready}
       onPlay={startedPlaying}
       onStateChange={(event) => {
-        console.log("===Debug information===");
-        console.log(event);
+        // console.log("===Debug information===");
+        // console.log(event);
         const player: any = event.target;
         switch (event.data) {
           case 2: // paused
@@ -96,11 +95,11 @@ const Player = () => {
           case 3: // buffering
             setTimeout(() => {
               // If we're still buffering, try pulling forward a little
-              if (player.currentState === 3) {
-                player.seekTo(player.getCurrentTime() + 1);
+              if (player.getPlayerState() === 3 && player.getCurrentTime() > 0) {
+                player.seekTo(player.getCurrentTime() + 0.1);
               }
               player.playVideo();
-            }, 1000);
+            }, 100);
             break;
         }
       }}

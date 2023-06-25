@@ -58,7 +58,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
         console.log("Skipping auto paste");
         return;
       }
-      console.log(e.key);
+      // console.log(e.key);
       if (e.ctrlKey && !e.shiftKey && e.key === "v") {
         e.preventDefault();
         let clip = "";

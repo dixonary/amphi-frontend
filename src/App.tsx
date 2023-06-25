@@ -13,7 +13,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./main.css";
 
 import Main from "./Main";
-import { UserBox, LoginCallback, AdminButton } from "./User";
+import { UserBox, LoginCallback, BespokeLoginCallback, AdminButton } from "./User";
 import { UserProvider } from "./UserProvider";
 import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
 import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
@@ -70,6 +70,7 @@ const Header = () => {
         <Navbar.Collapse>
           <NowPlayingText />
           <Route path="/auth/login" component={LoginCallback} />
+          <Route path="/auth/bespoke-login" component={BespokeLoginCallback} />
           <Route exact path="/" component={UserBox} />
         </Navbar.Collapse>
       </Navbar>

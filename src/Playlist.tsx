@@ -21,9 +21,13 @@ const Playlist = () => {
 
   return (
     <>
-      {bucketsArr.map((b: any, idx) => (
+      {(bucketsArr === null)
+      ? (<p>The global playlist is empty.</p>)
+      :
+      bucketsArr.map((b: any, idx) => (
         <Bucket bucket={b} key={idx} bucketIdx={idx} />
-      ))}
+      ))
+      }
     </>
   );
 };
@@ -42,5 +46,6 @@ const Bucket = ({ bucket, bucketIdx }: any) => {
     </div>
   );
 };
+
 
 export default Playlist;
