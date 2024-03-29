@@ -19,7 +19,6 @@ import {
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
 import Playlist from "./Playlist";
-import QueueProvider from "./QueueProvider";
 import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
@@ -42,7 +41,7 @@ function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a
       href="#"
-      style={{}}
+      style={{ display: "inline-block", flex: 1 }}
       onClick={decoratedOnClick}
     >
       {children}
@@ -71,74 +70,72 @@ const Sidebar = () => {
 
   return (
     <>
-      <QueueProvider>
-        <Accordion activeKey={activeKey.toString()}>
-          <Card bg="dark" className="now-playing">
-            <Card.Header>
-              <Toggle eventKey="__">
-                <div className="now-playing-heading-flex">
-                  <span style={{ flex: 1 }}>Now Playing</span>
-                  <CurrentViewers />
-                  <CurrentSkips />
-                  <HasVoteskipped />
-                </div>
-              </Toggle>
-            </Card.Header>
-            <Card.Body>
-              <NowPlayingSidebar />
-            </Card.Body>
-          </Card>
-          <Card bg="dark" className="playlist">
-            <Card.Header>
-              <Toggle eventKey="__">
-                <span style={{ display: "inline" }}>Playlist</span>
-                {user.firebaseUser && (
-                  <Tooltipped tooltipText="Recently Played"><Button className="history-btn" onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
-              </Toggle>
-            </Card.Header>
-            <Card.Body>
-              <Playlist />
-            </Card.Body>
-          </Card>
-          {user.firebaseUser && (
-            <>
-              <Card bg="dark" className="my-queue">
-                <Card.Header>
-                  <Toggle
-                    eventKey="my-queue"
-                    onclick={() => activate("my-queue")}
-                  >
-                    My Queue
-                  </Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="my-queue">
-                  <Card.Body className="">
-                    <MyQueue />
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
+      <Accordion activeKey={activeKey.toString()}>
+        <Card bg="dark" className="now-playing">
+          <Card.Header>
+            <Toggle eventKey="__">
+              <div className="now-playing-heading-flex">
+                <span style={{ flex: 1, textAlign: "left" }}>Now Playing</span>
+                <CurrentViewers />
+                <CurrentSkips />
+                <HasVoteskipped />
+              </div>
+            </Toggle>
+          </Card.Header>
+          <Card.Body>
+            <NowPlayingSidebar />
+          </Card.Body>
+        </Card>
+        <Card bg="dark" className="playlist">
+          <Card.Header style={{ display: "flex" }}>
+            <Toggle eventKey="__">
+              <span style={{ display: "inline" }}>Playlist</span>
+            </Toggle>
+            {user.firebaseUser && (
+              <Tooltipped tooltipText="Recently Played"><Button className="history-btn" style={{ flex: 0 }} onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
+          </Card.Header>
+          <Card.Body>
+            <Playlist />
+          </Card.Body>
+        </Card>
+        {user.firebaseUser && (
+          <>
+            <Card bg="dark" className="my-queue">
+              <Card.Header>
+                <Toggle
+                  eventKey="my-queue"
+                  onclick={() => activate("my-queue")}
+                >
+                  My Queue
+                </Toggle>
+              </Card.Header>
+              <Accordion.Collapse eventKey="my-queue">
+                <Card.Body className="">
+                  <MyQueue />
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
 
-              <Card bg="dark" className="new-video">
-                <Card.Header>
-                  <Toggle
-                    eventKey="new-video"
-                    onclick={() => {
-                      activate("new-video");
-                    }}
-                  >
-                    Add a Song
-                  </Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="new-video">
-                  <Card.Body className="">
-                    <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            </>
-          )}
-        </Accordion>
-      </QueueProvider>
+            <Card bg="dark" className="new-video">
+              <Card.Header>
+                <Toggle
+                  eventKey="new-video"
+                  onclick={() => {
+                    activate("new-video");
+                  }}
+                >
+                  Add a Song
+                </Toggle>
+              </Card.Header>
+              <Accordion.Collapse eventKey="new-video">
+                <Card.Body className="">
+                  <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+          </>
+        )}
+      </Accordion>
       <AdminToolbox />
       {user.userData !== undefined ? <RecentlyPlayedModal visible={recentlyPlayedVisible} closeRecentlyPlayed={() => setRecentlyPlayedVisible(false)} /> : <></>
       }

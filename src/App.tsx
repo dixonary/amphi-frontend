@@ -21,6 +21,8 @@ import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
 import { Close, Settings, CenterFocusStrong } from "@mui/icons-material";
 import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
 import { Tooltipped } from "./Sidebar";
+import { AddPlaylistProvider } from "./AddPlaylistProvider";
+import QueueProvider from "./QueueProvider";
 
 /******************************************************************************/
 /* Constants */
@@ -43,10 +45,14 @@ function App() {
       <ModeProvider>
         <NowPlayingProvider>
           <UserProvider>
-            <AdminToolsProvider>
-              <Header />
-              <Main />
-            </AdminToolsProvider>
+            <QueueProvider>
+              <AddPlaylistProvider>
+                <AdminToolsProvider>
+                  <Header />
+                  <Main />
+                </AdminToolsProvider>
+              </AddPlaylistProvider>
+            </QueueProvider>
           </UserProvider>
         </NowPlayingProvider>
       </ModeProvider>

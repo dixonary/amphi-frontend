@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import AdminSettings from "./AdminSettings";
 import { ModeContext, modeClass, Mode } from "./ModeProvider";
 import Player from "./Player";
+import { AddPlaylistModal } from "./AddPlaylistModal";
 
 const Main = () => {
   const { currentMode } = useContext(ModeContext);
@@ -15,6 +16,7 @@ const Main = () => {
       as="main"
       className={`flex-column text-light ${modeClass(currentMode)}`}
     >
+      <AddPlaylistModal />
       <AdminSettings />
       <Row className="main-row">
         {currentMode !== Mode.PLAYLIST_ONLY && (

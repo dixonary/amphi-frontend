@@ -4,6 +4,7 @@ import convertDuration from "./ConvertDuration";
 import { useListVals, useObjectVal } from "react-firebase-hooks/database";
 import { Spinner, Modal, ModalTitle, CloseButton, ModalBody } from "react-bootstrap";
 import ModalHeader from "react-bootstrap/esm/ModalHeader";
+import { Close } from '@mui/icons-material';
 // import { useAuth } from "./User";
 
 
@@ -14,7 +15,7 @@ const RecentlyPlayedModal = ({ visible, closeRecentlyPlayed }: any) => {
     .database()
     .ref("history")
     .orderByChild("playedAt")
-    .limitToLast(20);
+    .limitToLast(15);
   const [history] = useListVals<any>(historyRef, { keyField: "video" });
 
   var res;
@@ -37,7 +38,9 @@ const RecentlyPlayedModal = ({ visible, closeRecentlyPlayed }: any) => {
     >
       <ModalHeader>
         <ModalTitle>Recently Played Songs</ModalTitle>
-        <CloseButton onClick={closeRecentlyPlayed} />
+        <CloseButton onClick={closeRecentlyPlayed}>
+          <Close />
+        </CloseButton>
       </ModalHeader>
       <ModalBody>
         {res}
@@ -77,4 +80,4 @@ const PublicHistoryItem = ({ data, openToolbox }: any) => {
   );
 };
 
-export { RecentlyPlayedModal };
+export { RecentlyPlayedModal, PublicHistoryItem };

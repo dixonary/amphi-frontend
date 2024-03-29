@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "./UserProvider";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
+import 'firebase/compat/functions';
 import { NowPlayingContext } from "./NowPlayingProvider";
 
 // Administrators are considered trusted, priveleged users who have

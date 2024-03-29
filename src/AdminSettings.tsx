@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
 import {
   Modal,
   ModalBody,
@@ -10,11 +10,13 @@ import {
   InputGroup,
   Accordion,
   Card,
+  useAccordionButton,
 } from "react-bootstrap";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import ModalHeader from "react-bootstrap/ModalHeader";
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
+import 'firebase/compat/functions';
 import convertDuration from "./ConvertDuration";
 import {
   useListKeys,
@@ -32,11 +34,25 @@ import {
   RemoveCircleOutline,
   HourglassEmpty,
   Settings,
+  Close,
 } from "@mui/icons-material";
 
-/** This modal dialog shows up when an administrator wishes to
- *  make major moves based on a
- */
+
+function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey: string, onclick?: () => void }) {
+  const decoratedOnClick = useAccordionButton(eventKey, () => {
+    if (onclick) onclick();
+  });
+
+  return (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+    <a
+      style={{}}
+      onClick={decoratedOnClick}
+    >
+      {children}
+    </a>
+  );
+}
 
 const AdminSettings = () => {
   const { showSettings, closeSettings, openToolbox, audit } = useContext(
@@ -52,15 +68,17 @@ const AdminSettings = () => {
     >
       <ModalHeader>
         <ModalTitle>Control Panel</ModalTitle>
-        <CloseButton onClick={closeSettings} />
+        <CloseButton onClick={closeSettings}>
+          <Close />
+        </CloseButton>
       </ModalHeader>
       <ModalBody>
         <Accordion defaultActiveKey="">
           <Card className="constants">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="0">
-                <p>Constants</p>
-              </Accordion.Button>
+              <Toggle eventKey="0">
+                Constants
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="0">
               <Card.Body>
@@ -71,9 +89,9 @@ const AdminSettings = () => {
 
           <Card className="video-history">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="1">
+              <Toggle eventKey="1">
                 Recent videos
-              </Accordion.Button>
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="1">
               <Card.Body>
@@ -84,9 +102,9 @@ const AdminSettings = () => {
 
           <Card className="blacklisted-videos">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="2">
+              <Toggle eventKey="2">
                 Blacklisted videos
-              </Accordion.Button>
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="2">
               <Card.Body>
@@ -97,9 +115,9 @@ const AdminSettings = () => {
 
           <Card className="master-user-list">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="3">
+              <Toggle eventKey="3">
                 Master User List
-              </Accordion.Button>
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="3">
               <Card.Body>
@@ -110,9 +128,9 @@ const AdminSettings = () => {
 
           <Card className="audit-log">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="4">
+              <Toggle eventKey="4">
                 Audit Log
-              </Accordion.Button>
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="4">
               <Card.Body>
@@ -123,9 +141,9 @@ const AdminSettings = () => {
 
           <Card className="additional-buttons">
             <Card.Header>
-              <Accordion.Button as={Button} variant="link" eventKey="5">
+              <Toggle eventKey="5">
                 Additional Options
-              </Accordion.Button>
+              </Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="5">
               <Card.Body>
@@ -235,7 +253,7 @@ const VideoHistory = ({ openToolbox }: any) => {
     .database()
     .ref("history")
     .orderByChild("playedAt")
-    .limitToLast(20);
+    .limitToLast(10);
   const [history] = useListVals<any>(historyRef, { keyField: "video" });
 
   if (history === undefined) {
@@ -255,12 +273,16 @@ const VideoHistory = ({ openToolbox }: any) => {
 };
 
 const HistoryItem = ({ data, openToolbox }: any) => {
-  const [videoData] = useObjectVal<any>(
+  const [videoData, vload, verr] = useObjectVal<any>(
     firebase.database().ref(`videos/${data.video}`)
   );
-  const [userData] = useObjectVal<any>(
+  const [userData, uload, uerr] = useObjectVal<any>(
     firebase.database().ref(`users/${data.queuedBy}`)
   );
+
+  useEffect(() => {
+    console.log(videoData, vload, verr, userData, uload, uerr);
+  }, [videoData, vload, verr, userData, uload, uerr]);
 
   return (
     <div className="history-item">
@@ -312,7 +334,7 @@ const BlacklistedVideos = ({ openToolbox }: any) => {
   return (
     <>
       {blacklistedIds.map((v) => (
-        <BlacklistItem data={{ video: v }} openToolbox={openToolbox} />
+        <BlacklistItem key={v} data={{ video: v }} openToolbox={openToolbox} />
       ))}
     </>
   );

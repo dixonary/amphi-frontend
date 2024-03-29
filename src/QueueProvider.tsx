@@ -9,6 +9,18 @@ const QueueProvider = ({ children }: any) => {
   const ref = firebase.database().ref(`queues/${currentUser?.firebaseUser?.uid}`);
   const [queue] = useObject(ref);
 
+  const enqueueAll = async (videoIds: string[]) => {
+
+    if (!(currentUser?.firebaseUser)) return;
+    if (queue === undefined) return;
+
+    await queue.ref.transaction((q: any) => {
+      if (q === null) return videoIds.map((vid) => ({ video: vid }));
+      videoIds.forEach((vid) => q.push({ video: vid }));
+      return q;
+    });
+  }
+
   const enqueueVideo = async (videoId: string) => {
 
     if (currentUser === undefined) return;
@@ -64,7 +76,7 @@ const QueueProvider = ({ children }: any) => {
     await queue.ref.set(newQueue);
   };
 
-  const obj = { queue, enqueueVideo, removeVideo, moveVideo }
+  const obj = { queue, enqueueVideo, enqueueAll, removeVideo, moveVideo }
 
   return (<QueueContext.Provider value={obj}>
     {children}
@@ -81,6 +93,7 @@ export type VidInfo = {
 type QueueInfo = {
   queue: firebase.database.DataSnapshot | undefined,
   enqueueVideo: (videoId: string) => any,
+  enqueueAll: (videoIds: string[]) => any,
   removeVideo: (videoId: string) => any,
   moveVideo: (videoId: string, toIdx: number) => any
 };
@@ -89,6 +102,7 @@ type QueueInfo = {
 const noQueueInfo: QueueInfo = {
   queue: undefined,
   enqueueVideo: (v: string) => { },
+  enqueueAll: (v: string[]) => { },
   removeVideo: (v: string) => { },
   moveVideo: (v: string, n: number) => { }
 }

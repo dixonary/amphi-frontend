@@ -13,6 +13,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/database';
 import convertDuration from "./ConvertDuration";
 import { useObjectVal } from "react-firebase-hooks/database";
+import { Close } from "@mui/icons-material";
 
 /** This modal dialog shows up when an administrator wishes to
  *  make major moves based on a
@@ -39,7 +40,9 @@ const AdminToolbox = () => {
     >
       <ModalHeader>
         <ModalTitle>Toolbox</ModalTitle>
-        <CloseButton onClick={closeToolbox} />
+        <CloseButton onClick={closeToolbox}>
+          <Close />
+        </CloseButton>
       </ModalHeader>
       <ModalBody>
         {isAdmin || (
