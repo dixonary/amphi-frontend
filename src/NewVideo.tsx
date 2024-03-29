@@ -1,24 +1,25 @@
 import { useState, useEffect, useContext, useCallback } from "react";
 import { Alert, Spinner, Button } from "react-bootstrap";
 import { useObjectVal } from "react-firebase-hooks/database";
-import { PlaylistAdd } from "@material-ui/icons";
+import { PlaylistAdd } from "@mui/icons-material";
 import React from "react";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 
 import convertDuration from "./ConvertDuration";
 import { UserContext } from "./UserProvider";
 import { QueueContext } from "./QueueProvider";
+
+// Regex for youtube video URLs
+const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
+// Regex for youtube IDs only
+const ID_REGEX = /^([\w-]{11})$/;
 
 const NewVideo = ({ setAccordion, inputRef }: any) => {
   const [inputVal, setInputVal] = useState("");
   const [error, setError] = useState("");
   const [videoId, setVideoId] = useState("");
   const user = useContext(UserContext);
-
-  // Regex for youtube video URLs
-  const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
-  // Regex for youtube IDs only
-  const ID_REGEX = /^([\w-]{11})$/;
 
   const updateVideoUrl = useCallback(async (newVal: string) => {
     let res;
@@ -43,7 +44,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
     setVideoId("");
   }, []);
 
-  
+
 
   const reset = () => {
     setInputVal("");
@@ -51,7 +52,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
     setAccordion("my-queue");
   };
 
-  
+
   useEffect(() => {
     const pasteHandler = async (e: KeyboardEvent) => {
       if (inputRef.current?.id === document.activeElement?.id) {
@@ -71,17 +72,17 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
           return;
         }
         console.log(clip);
-        if(clip.match(YT_REGEX) !== null)
+        if (clip.match(YT_REGEX) !== null)
           updateVideoUrl(clip);
-          setAccordion("new-video");
+        setAccordion("new-video");
       }
     };
-  
+
     window.addEventListener('keydown', pasteHandler);
     return () => {
       window.removeEventListener('keydown', pasteHandler);
     };
-  }, [updateVideoUrl]);
+  }, [updateVideoUrl, inputRef, setAccordion]);
 
 
 
@@ -144,6 +145,11 @@ const VideoData = ({ videoId, resetData }: any) => {
   const [videoData, loading, error] = useObjectVal<any>(videoRef);
   const userQueue = useContext(QueueContext);
 
+  useEffect(() => {
+    console.log(videoData, loading, error);
+  }
+    , [videoData, loading, error]);
+
   // Tell the cloud about the new video ID we want populated
   // (But check if it's already been done first!)
   useEffect(() => {
@@ -156,7 +162,7 @@ const VideoData = ({ videoId, resetData }: any) => {
     runAsync();
   }, [videoRef]);
 
-  const enqueue = async () => {
+  const enqueue = useCallback(async () => {
     if (videoData === null) return;
 
     const queue = userQueue.queue?.val() as any[] | undefined | null;
@@ -173,7 +179,7 @@ const VideoData = ({ videoId, resetData }: any) => {
 
     await userQueue.enqueueVideo(videoId);
     resetData();
-  };
+  }, [userQueue, videoData, videoId, resetData]);
 
   useEffect(() => {
     const enterHandler = (e: KeyboardEvent) => {
@@ -182,7 +188,7 @@ const VideoData = ({ videoId, resetData }: any) => {
         (!(videoData?.embeddable) ? () => { } : enqueue)();
       }
     };
-  
+
     window.addEventListener('keypress', enterHandler);
     return () => {
       window.removeEventListener('keypress', enterHandler);
@@ -198,12 +204,12 @@ const VideoData = ({ videoId, resetData }: any) => {
     );
   }
 
-  
+
 
   let isProblem: string | null = null;
   if (videoData?.embeddable === false) isProblem = "Video is not embeddable";
 
-  
+
 
 
   if (videoData !== null) {
@@ -218,8 +224,8 @@ const VideoData = ({ videoId, resetData }: any) => {
                 backgroundPosition: "center center",
                 backgroundSize: "cover",
               }}
-              >
-          </div>
+            >
+            </div>
             <p className="duration">{convertDuration(videoData.duration)}</p>
           </div>
           <div className="info">
@@ -230,7 +236,7 @@ const VideoData = ({ videoId, resetData }: any) => {
 
         <Button
           as="a"
-          onClick={isProblem ? () => {} : enqueue}
+          onClick={isProblem ? () => { } : enqueue}
           variant={isProblem ? "danger" : "info"}
           className="enqueue-video"
         >

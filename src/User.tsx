@@ -9,9 +9,10 @@ import {
   OverlayTrigger,
 } from "react-bootstrap";
 
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
-import { Redirect, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import { AdminToolsContext } from "./AdminToolsProvider";
 import UWCSLogo from "./uwcsLogo";
@@ -123,7 +124,7 @@ const LoginCallback = () => {
     <Navbar.Collapse className="justify-content-end">
       <Navbar.Text>Loading user data...</Navbar.Text>
       <Spinner variant="light" animation="border" role="status" />
-      {data && <Redirect to="/" />}
+      {data && <Navigate to="/" />}
     </Navbar.Collapse>
   );
 };
@@ -149,7 +150,7 @@ const BespokeLoginCallback = () => {
     <Navbar.Collapse className="justify-content-end">
       <Navbar.Text>Logging in custom user...</Navbar.Text>
       <Spinner variant="light" animation="border" role="status" />
-      {data && <Redirect to="/" />}
+      {data && <Navigate to="/" />}
     </Navbar.Collapse>
   );
 };

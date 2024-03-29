@@ -1,7 +1,6 @@
 import React, {
   useContext,
   useState,
-  useRef,
   useEffect,
   useCallback,
 } from "react";
@@ -11,7 +10,7 @@ import { NowPlayingContext } from "./NowPlayingProvider";
 
 const Player = () => {
   const nowPlaying = useContext(NowPlayingContext);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  // const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const [youtube, setYoutube] = useState<any>(null);
   const [inDOM, setInDOM] = useState<boolean>(false);
@@ -28,10 +27,10 @@ const Player = () => {
     if (!nowPlaying && inDOM) {
       setInDOM(false);
     }
-  }, [setInDOM, nowPlaying]);
+  }, [setInDOM, nowPlaying, inDOM]);
 
   useEffect(() => {
-    if (nowPlaying === undefined || nowPlaying === null || !inDOM) 
+    if (nowPlaying === undefined || nowPlaying === null || !inDOM)
       return;
 
     const ss = Math.floor((Date.now() - nowPlaying.startedAt) / 1000);
@@ -103,7 +102,7 @@ const Player = () => {
             break;
         }
       }}
-      onEnd={() => {}}
+      onEnd={() => { }}
     />
   );
 };

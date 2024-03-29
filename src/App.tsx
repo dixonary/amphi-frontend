@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import firebase from "firebase";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import {
   Navbar,
   Tooltip,
@@ -17,7 +18,7 @@ import { UserBox, LoginCallback, BespokeLoginCallback, AdminButton } from "./Use
 import { UserProvider } from "./UserProvider";
 import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
 import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
-import { Close, Settings, CenterFocusStrong } from "@material-ui/icons";
+import { Close, Settings, CenterFocusStrong } from "@mui/icons-material";
 import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
 import { Tooltipped } from "./Sidebar";
 
@@ -69,9 +70,11 @@ const Header = () => {
         <Navbar.Toggle />
         <Navbar.Collapse>
           <NowPlayingText />
-          <Route path="/auth/login" component={LoginCallback} />
-          <Route path="/auth/bespoke-login" component={BespokeLoginCallback} />
-          <Route exact path="/" component={UserBox} />
+          <Routes>
+            <Route path="/auth/login/*" element={<LoginCallback />} />
+            <Route path="/auth/bespoke-login/*" element={<BespokeLoginCallback />} />
+            <Route path="/" element={<UserBox />} />
+          </Routes>
         </Navbar.Collapse>
       </Navbar>
       {UnderConstruction && <UnderConstructionNotice />}

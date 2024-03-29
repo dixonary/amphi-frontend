@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import { useObjectVal } from "react-firebase-hooks/database/";
 
 const NowPlayingContext = React.createContext<NowPlaying | undefined>(
@@ -31,6 +32,7 @@ const NowPlayingProvider_ = ({ children }: any) => {
  * starts or stops a single song.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NowPlayingProviderMock = ({ children }: any) => {
 
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | undefined>(undefined);
@@ -44,7 +46,7 @@ const NowPlayingProviderMock = ({ children }: any) => {
     queuedByDisplayName: "dixonary"
   }), []);
 
-  const switchNowPlaying = useCallback((e:any) => {
+  const switchNowPlaying = useCallback((e: any) => {
     if (e.key === "k") {
       if (!nowPlaying)
         setNowPlaying(nowPlayingRaw);
@@ -52,16 +54,16 @@ const NowPlayingProviderMock = ({ children }: any) => {
         setNowPlaying(undefined);
     }
 
-  }, [nowPlaying]);
+  }, [nowPlaying, nowPlayingRaw]);
 
   useEffect(() => {
 
-    window.addEventListener("keydown",switchNowPlaying);
+    window.addEventListener("keydown", switchNowPlaying);
 
     return (() => {
       window.removeEventListener("keydown", switchNowPlaying);
     });
-      
+
   }, [switchNowPlaying]);
 
   return (

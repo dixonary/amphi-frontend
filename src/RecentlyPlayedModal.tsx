@@ -1,9 +1,10 @@
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import convertDuration from "./ConvertDuration";
 import { useListVals, useObjectVal } from "react-firebase-hooks/database";
 import { Spinner, Modal, ModalTitle, CloseButton, ModalBody } from "react-bootstrap";
 import ModalHeader from "react-bootstrap/esm/ModalHeader";
-import { useAuth } from "./User";
+// import { useAuth } from "./User";
 
 
 
@@ -65,7 +66,7 @@ const PublicHistoryItem = ({ data, openToolbox }: any) => {
                 <p className="channel-title">
                   {videoData.channelTitle} - {convertDuration(videoData.duration)}
                 </p>
-                <a href={`https://youtube.com/watch?v=${data.video}`} target="_blank">
+                <a href={`https://youtube.com/watch?v=${data.video}`} target="_blank" rel="noreferrer">
                   {data.video}
                 </a>
               </div>

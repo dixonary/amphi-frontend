@@ -13,7 +13,8 @@ import {
 } from "react-bootstrap";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import ModalHeader from "react-bootstrap/ModalHeader";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import convertDuration from "./ConvertDuration";
 import {
   useListKeys,
@@ -31,7 +32,7 @@ import {
   RemoveCircleOutline,
   HourglassEmpty,
   Settings,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 
 /** This modal dialog shows up when an administrator wishes to
  *  make major moves based on a
@@ -44,8 +45,8 @@ const AdminSettings = () => {
 
   return (
     <Modal
-      onShow={() => {}}
-      onHide={() => {}}
+      onShow={() => { }}
+      onHide={() => { }}
       show={showSettings}
       className="admin-settings"
     >
@@ -57,9 +58,9 @@ const AdminSettings = () => {
         <Accordion defaultActiveKey="">
           <Card className="constants">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                Constants
-              </Accordion.Toggle>
+              <Accordion.Button as={Button} variant="link" eventKey="0">
+                <p>Constants</p>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="0">
               <Card.Body>
@@ -70,9 +71,9 @@ const AdminSettings = () => {
 
           <Card className="video-history">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="1">
+              <Accordion.Button as={Button} variant="link" eventKey="1">
                 Recent videos
-              </Accordion.Toggle>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="1">
               <Card.Body>
@@ -83,9 +84,9 @@ const AdminSettings = () => {
 
           <Card className="blacklisted-videos">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="2">
+              <Accordion.Button as={Button} variant="link" eventKey="2">
                 Blacklisted videos
-              </Accordion.Toggle>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="2">
               <Card.Body>
@@ -96,9 +97,9 @@ const AdminSettings = () => {
 
           <Card className="master-user-list">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="3">
+              <Accordion.Button as={Button} variant="link" eventKey="3">
                 Master User List
-              </Accordion.Toggle>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="3">
               <Card.Body>
@@ -109,9 +110,9 @@ const AdminSettings = () => {
 
           <Card className="audit-log">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="4">
+              <Accordion.Button as={Button} variant="link" eventKey="4">
                 Audit Log
-              </Accordion.Toggle>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="4">
               <Card.Body>
@@ -122,9 +123,9 @@ const AdminSettings = () => {
 
           <Card className="additional-buttons">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="5">
+              <Accordion.Button as={Button} variant="link" eventKey="5">
                 Additional Options
-              </Accordion.Toggle>
+              </Accordion.Button>
             </Card.Header>
             <Accordion.Collapse eventKey="5">
               <Card.Body>
@@ -220,9 +221,7 @@ const NumericControl = (data: NumericControlData) => {
           value={localValue?.toString() ?? ""}
           onChange={(e) => setVal(e.currentTarget.value)}
         />
-        <InputGroup.Append>
-          <InputGroup.Text>{data.dimension}</InputGroup.Text>
-        </InputGroup.Append>
+        <InputGroup.Text>{data.dimension}</InputGroup.Text>
       </InputGroup>
     </Form.Group>
   );
@@ -267,9 +266,9 @@ const HistoryItem = ({ data, openToolbox }: any) => {
     <div className="history-item">
       <div className="details">
         {videoData === undefined ||
-        videoData === null ||
-        userData === undefined ||
-        userData === null ? (
+          videoData === null ||
+          userData === undefined ||
+          userData === null ? (
           <Spinner animation="border" />
         ) : (
           <>
@@ -522,7 +521,7 @@ const AuditItem = ({ data, openToolbox }: any) => {
   );
 };
 
-const AdditionalButtons = ({ openToolbox } : any) => {
+const AdditionalButtons = ({ openToolbox }: any) => {
 
   const [displayName, setDisplayName] = useState("");
   const [result, setResult] = useState("");
@@ -530,7 +529,7 @@ const AdditionalButtons = ({ openToolbox } : any) => {
   const bespokeLogin = useMemo(() => `https://${window.location.host}/auth/bespoke-login?q=${result}`, [result]);
 
   const createNonAffiliatedUser = useCallback(async () => {
-    let code = (await firebase.functions().httpsCallable("admin_createNonAffiliatedUser")({displayName})).data;
+    let code = (await firebase.functions().httpsCallable("admin_createNonAffiliatedUser")({ displayName })).data;
     setResult(code);
   }, [displayName]);
 
@@ -545,10 +544,10 @@ const AdditionalButtons = ({ openToolbox } : any) => {
     <Button as="a" onClick={createNonAffiliatedUser}>Create non-affiliated user</Button>
     {result !== "" && (
       <>
-      <Form>
-        <Form.Text>Share this login URL to the user:</Form.Text>
-        <Form.Control value={bespokeLogin}></Form.Control>
-      </Form>
+        <Form>
+          <Form.Text>Share this login URL to the user:</Form.Text>
+          <Form.Control value={bespokeLogin}></Form.Control>
+        </Form>
       </>
     )}
   </>)

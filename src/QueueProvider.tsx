@@ -1,52 +1,53 @@
 import React, { useContext } from "react";
 import { UserContext } from "./UserProvider";
 import { useObject } from "react-firebase-hooks/database/";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 
-const QueueProvider = ({children}:any) => {
+const QueueProvider = ({ children }: any) => {
   const currentUser = useContext(UserContext);
   const ref = firebase.database().ref(`queues/${currentUser?.firebaseUser?.uid}`);
-  const [ queue ]   = useObject(ref);
+  const [queue] = useObject(ref);
 
-  const enqueueVideo = async (videoId:string) => {
+  const enqueueVideo = async (videoId: string) => {
 
-    if(currentUser === undefined) return;
-    if(queue       === undefined) return;
+    if (currentUser === undefined) return;
+    if (queue === undefined) return;
 
-    await queue.ref.transaction(q => {
-      if(q === null) return [{video:videoId}];
-      q.push({video:videoId});
+    await queue.ref.transaction((q: any) => {
+      if (q === null) return [{ video: videoId }];
+      q.push({ video: videoId });
       return q;
     });
   };
 
-  const removeVideo = async (videoId:string) => {
-    if(queue === undefined) return;
+  const removeVideo = async (videoId: string) => {
+    if (queue === undefined) return;
 
     let newQueue = queue.val() as VidInfo[] | null;
-    if(newQueue === null) return;
+    if (newQueue === null) return;
 
     const idx = newQueue.findIndex((x) => x.video === videoId);
-    if(idx === -1) return;
+    if (idx === -1) return;
 
     newQueue.splice(idx, 1);
-    
+
     await queue.ref.set(newQueue);
   };
 
-  const moveVideo = async (vidId:string, toIdx:number) => {
+  const moveVideo = async (vidId: string, toIdx: number) => {
 
-    if(queue === undefined) return;
+    if (queue === undefined) return;
 
     const oldQueue = queue.val() as VidInfo[] | null;
-    if(oldQueue === null) return;
+    if (oldQueue === null) return;
 
-    if(toIdx < 0 || toIdx >= oldQueue.length) return;
+    if (toIdx < 0 || toIdx >= oldQueue.length) return;
 
     // Build a list of the IDs
-    let queueIds = oldQueue.map((x:any) => x.video);
+    let queueIds = oldQueue.map((x: any) => x.video);
     const fromIdx = queueIds.indexOf(vidId);
-    if(fromIdx === -1) return;
+    if (fromIdx === -1) return;
 
 
     // Move the relevant ID to its new home
@@ -63,33 +64,33 @@ const QueueProvider = ({children}:any) => {
     await queue.ref.set(newQueue);
   };
 
-  const obj = {queue, enqueueVideo, removeVideo, moveVideo}
+  const obj = { queue, enqueueVideo, removeVideo, moveVideo }
 
   return (<QueueContext.Provider value={obj}>
     {children}
-    </QueueContext.Provider>
+  </QueueContext.Provider>
   );
 }
 
 export type VidInfo = {
-  video:string,
-  queuedAt:number
+  video: string,
+  queuedAt: number
 }
 
 // The type representing contents of our queue data.
 type QueueInfo = {
-  queue:firebase.database.DataSnapshot | undefined,
-  enqueueVideo:(videoId:string) => any,
-  removeVideo: (videoId:string) => any,
-  moveVideo:(videoId:string, toIdx:number) => any
+  queue: firebase.database.DataSnapshot | undefined,
+  enqueueVideo: (videoId: string) => any,
+  removeVideo: (videoId: string) => any,
+  moveVideo: (videoId: string, toIdx: number) => any
 };
 
 // An empty default value.
-const noQueueInfo:QueueInfo = {
-  queue:undefined,
-  enqueueVideo:(v:string          ) => {},
-  removeVideo :(v:string          ) => {},
-  moveVideo   :(v:string, n:number) => {}
+const noQueueInfo: QueueInfo = {
+  queue: undefined,
+  enqueueVideo: (v: string) => { },
+  removeVideo: (v: string) => { },
+  moveVideo: (v: string, n: number) => { }
 }
 
 // A context sentinel for React to use.

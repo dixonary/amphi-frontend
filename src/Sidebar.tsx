@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  ReactNode,
 } from "react";
 import {
   Accordion,
@@ -13,6 +14,7 @@ import {
   Button,
   OverlayTrigger,
   Tooltip,
+  useAccordionButton,
 } from "react-bootstrap";
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
@@ -21,18 +23,36 @@ import QueueProvider from "./QueueProvider";
 import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
-import firebase from "firebase";
-import { SkipNext, Assignment, History } from "@material-ui/icons";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
+import { SkipNext, Assignment, History } from "@mui/icons-material";
 import convertDuration from "./ConvertDuration";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { UserContext, UserState } from "./UserProvider";
-import { Visibility } from "@material-ui/icons";
+import { Visibility } from "@mui/icons-material";
 import { RecentlyPlayedModal } from "./RecentlyPlayedModal";
+
+
+function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey: string, onclick?: () => void }) {
+  const decoratedOnClick = useAccordionButton(eventKey, () => {
+    if (onclick) onclick();
+  });
+
+  return (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+    <a
+      href="#"
+      style={{}}
+      onClick={decoratedOnClick}
+    >
+      {children}
+    </a>
+  );
+}
 
 const Sidebar = () => {
   const user = useContext(UserContext);
   const [activeKey, setActiveKey] = useState("my-queue");
-  const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
 
   const [recentlyPlayedVisible, setRecentlyPlayedVisible] = useState(false);
@@ -48,20 +68,21 @@ const Sidebar = () => {
     else setActiveKey(key);
   };
 
+
   return (
     <>
       <QueueProvider>
         <Accordion activeKey={activeKey.toString()}>
           <Card bg="dark" className="now-playing">
             <Card.Header>
-              <Accordion.Toggle as="a" eventKey="__">
+              <Toggle eventKey="__">
                 <div className="now-playing-heading-flex">
                   <span style={{ flex: 1 }}>Now Playing</span>
                   <CurrentViewers />
                   <CurrentSkips />
                   <HasVoteskipped />
                 </div>
-              </Accordion.Toggle>
+              </Toggle>
             </Card.Header>
             <Card.Body>
               <NowPlayingSidebar />
@@ -69,11 +90,11 @@ const Sidebar = () => {
           </Card>
           <Card bg="dark" className="playlist">
             <Card.Header>
-              <Accordion.Toggle as="a" eventKey="__">
+              <Toggle eventKey="__">
                 <span style={{ display: "inline" }}>Playlist</span>
                 {user.firebaseUser && (
                   <Tooltipped tooltipText="Recently Played"><Button className="history-btn" onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
-              </Accordion.Toggle>
+              </Toggle>
             </Card.Header>
             <Card.Body>
               <Playlist />
@@ -83,14 +104,12 @@ const Sidebar = () => {
             <>
               <Card bg="dark" className="my-queue">
                 <Card.Header>
-                  <Accordion.Toggle
-                    as="a"
-                    // variant="link"
+                  <Toggle
                     eventKey="my-queue"
-                    onClick={() => activate("my-queue")}
+                    onclick={() => activate("my-queue")}
                   >
                     My Queue
-                  </Accordion.Toggle>
+                  </Toggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="my-queue">
                   <Card.Body className="">
@@ -101,16 +120,14 @@ const Sidebar = () => {
 
               <Card bg="dark" className="new-video">
                 <Card.Header>
-                  <Accordion.Toggle
-                    as="a"
-                    // variant="link"
+                  <Toggle
                     eventKey="new-video"
-                    onClick={() => {
+                    onclick={() => {
                       activate("new-video");
                     }}
                   >
                     Add a Song
-                  </Accordion.Toggle>
+                  </Toggle>
                 </Card.Header>
                 <Accordion.Collapse eventKey="new-video">
                   <Card.Body className="">
@@ -144,7 +161,7 @@ const NowPlayingSidebar = () => {
       .database()
       .ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
       .set(true);
-  }, [videoData, userData]);
+  }, [userData]);
 
   useEffect(() => {
     if (nowPlaying?.video === undefined) {
@@ -281,7 +298,7 @@ const CurrentSkips = () => {
           console.log("Skipped already");
         }
         : voteSkip,
-    [hasSkipped]
+    [hasSkipped, voteSkip]
   );
 
   if (!numSkips) return <></>;
