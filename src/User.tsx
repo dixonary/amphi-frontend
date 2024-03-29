@@ -11,7 +11,7 @@ import {
 
 import firebase from "firebase";
 
-import { Redirect, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import { AdminToolsContext } from "./AdminToolsProvider";
 import UWCSLogo from "./uwcsLogo";
@@ -123,7 +123,7 @@ const LoginCallback = () => {
     <Navbar.Collapse className="justify-content-end">
       <Navbar.Text>Loading user data...</Navbar.Text>
       <Spinner variant="light" animation="border" role="status" />
-      {data && <Redirect to="/" />}
+      {data && <Navigate to="/" />}
     </Navbar.Collapse>
   );
 };

@@ -31,7 +31,7 @@ const NowPlayingProvider_ = ({ children }: any) => {
  * starts or stops a single song.
  */
 
-const NowPlayingProviderMock = ({ children }: any) => {
+export const NowPlayingProviderMock = ({ children }: any) => {
 
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | undefined>(undefined);
 
@@ -44,7 +44,7 @@ const NowPlayingProviderMock = ({ children }: any) => {
     queuedByDisplayName: "dixonary"
   }), []);
 
-  const switchNowPlaying = useCallback((e:any) => {
+  const switchNowPlaying = useCallback((e: any) => {
     if (e.key === "k") {
       if (!nowPlaying)
         setNowPlaying(nowPlayingRaw);
@@ -52,16 +52,16 @@ const NowPlayingProviderMock = ({ children }: any) => {
         setNowPlaying(undefined);
     }
 
-  }, [nowPlaying]);
+  }, [nowPlaying, nowPlayingRaw]);
 
   useEffect(() => {
 
-    window.addEventListener("keydown",switchNowPlaying);
+    window.addEventListener("keydown", switchNowPlaying);
 
     return (() => {
       window.removeEventListener("keydown", switchNowPlaying);
     });
-      
+
   }, [switchNowPlaying]);
 
   return (

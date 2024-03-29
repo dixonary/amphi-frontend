@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext, useCallback, useMemo } from "react";
 import { Alert, Spinner, Button } from "react-bootstrap";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { PlaylistAdd } from "@material-ui/icons";
@@ -8,27 +8,43 @@ import firebase from "firebase";
 import convertDuration from "./ConvertDuration";
 import { UserContext } from "./UserProvider";
 import { QueueContext } from "./QueueProvider";
+import { AddPlaylistContext } from "./AddPlaylistProvider";
+
+// Regex for youtube playlist URLs
+const PLAYLIST_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
+
+// Regex for youtube video URLs
+const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
+// Regex for youtube IDs only
+const ID_REGEX = /^([\w-]{11})$/;
 
 const NewVideo = ({ setAccordion, inputRef }: any) => {
   const [inputVal, setInputVal] = useState("");
   const [error, setError] = useState("");
   const [videoId, setVideoId] = useState("");
+  const [playlistId, setPlaylistId] = useState("");
   const user = useContext(UserContext);
 
-  // Regex for youtube video URLs
-  const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
-  // Regex for youtube IDs only
-  const ID_REGEX = /^([\w-]{11})$/;
 
   const updateVideoUrl = useCallback(async (newVal: string) => {
     let res;
     setInputVal(newVal);
+
+    res = newVal.match(PLAYLIST_REGEX);
+    if (res !== null) {
+      // Exact match on playlist IDs
+      setError("");
+      setVideoId("");
+      setPlaylistId(res[5] as string);
+      return;
+    }
 
     res = newVal.match(ID_REGEX);
     if (res !== null) {
       // Exact match on video IDs
       setError("");
       setVideoId(newVal);
+      setPlaylistId("");
       return;
     }
 
@@ -37,21 +53,24 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
       // Match YT url pattern
       setError("");
       setVideoId(res[5] as string);
+      setPlaylistId("");
       return;
     }
 
     setVideoId("");
+    setPlaylistId("");
   }, []);
 
-  
+
 
   const reset = () => {
     setInputVal("");
     setVideoId("");
+    setPlaylistId("");
     setAccordion("my-queue");
   };
 
-  
+
   useEffect(() => {
     const pasteHandler = async (e: KeyboardEvent) => {
       if (inputRef.current?.id === document.activeElement?.id) {
@@ -71,17 +90,17 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
           return;
         }
         console.log(clip);
-        if(clip.match(YT_REGEX) !== null)
+        if (clip.match(YT_REGEX) !== null)
           updateVideoUrl(clip);
-          setAccordion("new-video");
+        setAccordion("new-video");
       }
     };
-  
+
     window.addEventListener('keydown', pasteHandler);
     return () => {
       window.removeEventListener('keydown', pasteHandler);
     };
-  }, [updateVideoUrl]);
+  }, [updateVideoUrl, inputRef, setAccordion]);
 
 
 
@@ -124,6 +143,12 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
           resetData={reset}
         />
       )}
+      {playlistId !== "" && (
+        <PlaylistData
+          playlistId={playlistId}
+          resetData={reset}
+        />
+      )}
     </>
   );
 };
@@ -137,6 +162,80 @@ const timeToDurationString = (then: number) => {
     return Math.round(seconds / 60) + " minutes";
   }
   return seconds + " seconds";
+};
+
+const PlaylistData = ({ playlistId, resetData }: any) => {
+  const playlistRef = firebase.database().ref(`playlists/${playlistId}`);
+  const [playlistData, loading] = useObjectVal<any>(playlistRef);
+  const { addPlaylist, setAddPlaylist } = useContext(AddPlaylistContext);
+
+  // Tell the cloud about the new playlist ID we want populated
+  // (But check if it's already been done first!)
+  useEffect(() => {
+    const runAsync = async () => {
+      const currentState = (await playlistRef.once("value")).val();
+      if (currentState === null) {
+        await playlistRef.set({ loading: true });
+      }
+    };
+    runAsync();
+  }, [playlistRef]);
+
+  const enqueue = useMemo(() => async () => {
+    if (playlistData === null) return;
+    if (addPlaylist) return;
+
+    setAddPlaylist(playlistId);
+
+    resetData();
+  }, [playlistData, resetData, addPlaylist, setAddPlaylist, playlistId]);
+
+  useEffect(() => {
+    const enterHandler = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        enqueue();
+      }
+    };
+
+    window.addEventListener('keypress', enterHandler);
+    return () => {
+      window.removeEventListener('keypress', enterHandler);
+    };
+  }, [enqueue]);
+
+  if (loading || (playlistData?.loading && !playlistData.title)) {
+    return (
+      <div className="video-details">
+        <Spinner animation="border" className="margin-auto" />
+      </div>
+    );
+  }
+
+  if (playlistData !== null) {
+    return (
+      <>
+        <div className="video-details">
+          <div className="info">
+            <p className="title">{playlistData.title}</p>
+            <p className="channel">{playlistData.channelTitle}</p>
+          </div>
+        </div>
+
+        <Button
+          as="a"
+          onClick={enqueue}
+          variant="info"
+          className="enqueue-video"
+        >
+          {playlistData?.loading ? (
+            <Spinner animation="border" />
+          ) : (
+            <PlaylistAdd />
+          )}
+        </Button>
+      </>
+    );
+  }
 };
 
 const VideoData = ({ videoId, resetData }: any) => {
@@ -156,7 +255,7 @@ const VideoData = ({ videoId, resetData }: any) => {
     runAsync();
   }, [videoRef]);
 
-  const enqueue = async () => {
+  const enqueue = useMemo(() => async () => {
     if (videoData === null) return;
 
     const queue = userQueue.queue?.val() as any[] | undefined | null;
@@ -173,7 +272,7 @@ const VideoData = ({ videoId, resetData }: any) => {
 
     await userQueue.enqueueVideo(videoId);
     resetData();
-  };
+  }, [resetData, userQueue, videoData, videoId]);
 
   useEffect(() => {
     const enterHandler = (e: KeyboardEvent) => {
@@ -182,7 +281,7 @@ const VideoData = ({ videoId, resetData }: any) => {
         (!(videoData?.embeddable) ? () => { } : enqueue)();
       }
     };
-  
+
     window.addEventListener('keypress', enterHandler);
     return () => {
       window.removeEventListener('keypress', enterHandler);
@@ -198,12 +297,12 @@ const VideoData = ({ videoId, resetData }: any) => {
     );
   }
 
-  
+
 
   let isProblem: string | null = null;
   if (videoData?.embeddable === false) isProblem = "Video is not embeddable";
 
-  
+
 
 
   if (videoData !== null) {
@@ -218,8 +317,8 @@ const VideoData = ({ videoId, resetData }: any) => {
                 backgroundPosition: "center center",
                 backgroundSize: "cover",
               }}
-              >
-          </div>
+            >
+            </div>
             <p className="duration">{convertDuration(videoData.duration)}</p>
           </div>
           <div className="info">
@@ -230,7 +329,7 @@ const VideoData = ({ videoId, resetData }: any) => {
 
         <Button
           as="a"
-          onClick={isProblem ? () => {} : enqueue}
+          onClick={isProblem ? () => { } : enqueue}
           variant={isProblem ? "danger" : "info"}
           className="enqueue-video"
         >

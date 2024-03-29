@@ -44,8 +44,8 @@ const AdminSettings = () => {
 
   return (
     <Modal
-      onShow={() => {}}
-      onHide={() => {}}
+      onShow={() => { }}
+      onHide={() => { }}
       show={showSettings}
       className="admin-settings"
     >
@@ -57,9 +57,11 @@ const AdminSettings = () => {
         <Accordion defaultActiveKey="">
           <Card className="constants">
             <Card.Header>
-              <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                Constants
-              </Accordion.Toggle>
+              {// @ts-ignore
+                <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                  Constants
+                </Accordion.Toggle>
+              }
             </Card.Header>
             <Accordion.Collapse eventKey="0">
               <Card.Body>
@@ -254,9 +256,9 @@ const HistoryItem = ({ data, openToolbox }: any) => {
     <div className="history-item">
       <div className="details">
         {videoData === undefined ||
-        videoData === null ||
-        userData === undefined ||
-        userData === null ? (
+          videoData === null ||
+          userData === undefined ||
+          userData === null ? (
           <Spinner animation="border" />
         ) : (
           <>

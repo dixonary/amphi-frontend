@@ -31,7 +31,7 @@ import { Visibility } from "@material-ui/icons";
 const Sidebar = () => {
   const user = useContext(UserContext);
   const [activeKey, setActiveKey] = useState("my-queue");
-  const { isAdmin } = useContext(AdminToolsContext);
+  // const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
 
   const focusInput = () =>
@@ -137,7 +137,7 @@ const NowPlayingSidebar = () => {
       .database()
       .ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
       .set(true);
-  }, [videoData, userData]);
+  }, [userData]);
 
   useEffect(() => {
     if (nowPlaying?.video === undefined) {
@@ -181,17 +181,17 @@ const NowPlayingSidebar = () => {
         {(isAdmin ||
           (nowPlaying?.queuedBy &&
             nowPlaying?.queuedBy === userData?.userData?.uid)) && (
-          <Tooltipped tooltipText="Skip">
-            <Button
-              as="a"
-              className="delete admin"
-              variant="dark"
-              onClick={() => playNextVideo(nowPlaying.video)}
-            >
-              <SkipNext />
-            </Button>
-          </Tooltipped>
-        )}
+            <Tooltipped tooltipText="Skip">
+              <Button
+                as="a"
+                className="delete admin"
+                variant="dark"
+                onClick={() => playNextVideo(nowPlaying.video)}
+              >
+                <SkipNext />
+              </Button>
+            </Tooltipped>
+          )}
         {isAdmin && (
           <Tooltipped tooltipText="Open Toolbox">
             <Button
@@ -271,10 +271,10 @@ const CurrentSkips = () => {
     () =>
       hasSkipped
         ? () => {
-            console.log("Skipped already");
-          }
+          console.log("Skipped already");
+        }
         : voteSkip,
-    [hasSkipped]
+    [hasSkipped, voteSkip]
   );
 
   if (!numSkips) return <></>;

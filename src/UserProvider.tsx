@@ -17,7 +17,7 @@ const noUserState = {
 const UserContext = React.createContext<UserState>(noUserState);
 
 const UserProvider = ({ children }: any) => {
-  const [user, loading, error] = useAuthState(firebase.auth());
+  const [user, , error] = useAuthState(firebase.auth());
   const [udata] = useObjectVal(firebase.database().ref(`users/${user?.uid}`));
 
   return (

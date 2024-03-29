@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import firebase from "firebase";
 import {
   Navbar,
@@ -20,6 +20,7 @@ import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
 import { Close, Settings, CenterFocusStrong } from "@material-ui/icons";
 import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
 import { Tooltipped } from "./Sidebar";
+import { AddPlaylistProvider } from "./AddPlaylistProvider";
 
 /******************************************************************************/
 /* Constants */
@@ -40,14 +41,16 @@ function App() {
   return (
     <Router>
       <ModeProvider>
-        <NowPlayingProvider>
-          <UserProvider>
-            <AdminToolsProvider>
-              <Header />
-              <Main />
-            </AdminToolsProvider>
-          </UserProvider>
-        </NowPlayingProvider>
+        <AddPlaylistProvider>
+          <NowPlayingProvider>
+            <UserProvider>
+              <AdminToolsProvider>
+                <Header />
+                <Main />
+              </AdminToolsProvider>
+            </UserProvider>
+          </NowPlayingProvider>
+        </AddPlaylistProvider>
       </ModeProvider>
     </Router>
   );
@@ -69,8 +72,12 @@ const Header = () => {
         <Navbar.Toggle />
         <Navbar.Collapse>
           <NowPlayingText />
-          <Route path="/auth/login" component={LoginCallback} />
-          <Route exact path="/" component={UserBox} />
+          <Routes>
+            <Route path="/auth/login/*" element={<LoginCallback />}>
+            </Route>
+            <Route path="/" element={<UserBox />}>
+            </Route>
+          </Routes>
         </Navbar.Collapse>
       </Navbar>
       {UnderConstruction && <UnderConstructionNotice />}

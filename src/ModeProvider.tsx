@@ -1,6 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import firebase from "firebase";
-import { serialize } from "v8";
 
 export type ModeData = {
   currentMode: Mode;
@@ -15,7 +13,7 @@ export enum Mode {
 
 const ModeContext = React.createContext<ModeData>({
   currentMode: Mode.DEFAULT,
-  switchMode: () => {},
+  switchMode: () => { },
 });
 
 const serializeMode = (m: Mode) => {
@@ -41,7 +39,7 @@ const ModeProvider = ({ children }: any) => {
   }, []);
   const [currentMode, setCurrentMode] = useState<Mode>(initialMode);
 
-  const setMode = useCallback((m) => {
+  const setMode = useCallback((m: any) => {
     setCurrentMode(m);
     localStorage.setItem('view-mode', serializeMode(m));
   }, [setCurrentMode]);
