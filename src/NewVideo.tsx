@@ -213,23 +213,18 @@ const PlaylistData = ({ playlistId, resetData }: any) => {
   if (playlistData !== null) {
     return (
       <>
-        <div className="video-details">
-          <div className="info">
-            <p className="title">{playlistData.title}</p>
-            <p className="channel">{playlistData.channelTitle}</p>
-          </div>
-        </div>
 
         <Button
           as="a"
           onClick={enqueue}
           variant="info"
           className="enqueue-video"
+          style={{ marginTop: "1rem" }}
         >
           {playlistData?.loading ? (
             <Spinner animation="border" />
           ) : (
-            <PlaylistAdd />
+            <>Load music from playlist</>
           )}
         </Button>
       </>
