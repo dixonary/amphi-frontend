@@ -3,7 +3,8 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => {
   const environment = loadEnv(mode, process.cwd(), "");
-  const target = environment.VITE_SERVER_ORIGIN || "http://localhost:3201";
+  const target = environment.VITE_SERVER_ORIGIN ||
+    "https://amphi.dixonary.co.uk";
 
   return {
     plugins: [react()],
