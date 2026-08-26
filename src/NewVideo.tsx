@@ -3,7 +3,7 @@ import { Alert, Spinner } from "react-bootstrap";
 import PlaylistAdd from "@mui/icons-material/PlaylistAdd";
 import convertDuration from "./ConvertDuration";
 import { AddPlaylistContext } from "./AddPlaylistProvider";
-import { ServerContext } from "./ServerProvider";
+import { ServerContext, type Video } from "./ServerProvider";
 import { UserContext } from "./UserProvider";
 
 const VIDEO_URL = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu\.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
@@ -94,10 +94,11 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
 
 const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void }) => {
   const { state, sendCommand } = useContext(ServerContext);
-  const video = state?.videos[videoId];
+  const [previewVideo, setPreviewVideo] = useState<{ videoId: string; video: Video } | null>(null);
   const [loading, setLoading] = useState(false);
   const [failureMessage, setFailureMessage] = useState("");
   const attemptedVideoId = useRef<string | null>(null);
+  const video = state?.videos[videoId] ?? (previewVideo?.videoId === videoId ? previewVideo.video : undefined);
   const alreadyQueued = Object.values(state?.queues ?? {}).some((queue) =>
     queue.some((item) => item.videoId === videoId)
   );
@@ -116,7 +117,11 @@ const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void })
     setLoading(true);
     setFailureMessage("");
     const result = await sendCommand("video.add", { videoId });
-    if (!result.ok) setFailureMessage("Unable to load this video.");
+    if (result.ok && result.video) {
+      setPreviewVideo({ videoId, video: result.video });
+    } else {
+      setFailureMessage("Unable to load this video.");
+    }
     setLoading(false);
   }, [sendCommand, videoId]);
 

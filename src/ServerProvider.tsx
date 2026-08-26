@@ -79,6 +79,7 @@ type CommandPayload = Record<string, unknown>;
 type CommandResult = {
   ok: boolean;
   code?: string;
+  video?: Video;
 };
 
 type ServerContextValue = {
@@ -119,7 +120,7 @@ const ServerProvider = ({ children }: React.PropsWithChildren) => {
       };
 
       connection.onmessage = (event) => {
-        const message = JSON.parse(event.data) as { type?: string; state?: ServerState; requestId?: string; ok?: boolean; code?: string };
+        const message = JSON.parse(event.data) as { type?: string; state?: ServerState; requestId?: string; ok?: boolean; code?: string; video?: Video };
         if (message.type === "state" && message.state) {
           setState(message.state);
           return;
@@ -128,7 +129,7 @@ const ServerProvider = ({ children }: React.PropsWithChildren) => {
           const resolve = pendingRequestsRef.current.get(message.requestId);
           if (resolve) {
             pendingRequestsRef.current.delete(message.requestId);
-            resolve({ ok: message.ok === true, code: message.code });
+            resolve({ ok: message.ok === true, code: message.code, video: message.video });
           }
         }
       };
