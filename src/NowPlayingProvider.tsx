@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
-import { useObjectVal } from "react-firebase-hooks/database/";
+import React, { useContext } from "react";
+import { ServerContext } from "./ServerProvider";
 
 const NowPlayingContext = React.createContext<NowPlaying | undefined>(
   undefined
@@ -16,55 +14,20 @@ export type NowPlaying = {
   queuedByDisplayName: string;
 };
 
-const NowPlayingProvider_ = ({ children }: any) => {
-  const nowPlayingRef = firebase.database().ref("currentVideo");
-  const [nowPlaying] = useObjectVal<NowPlaying>(nowPlayingRef);
-
-  return (
-    <NowPlayingContext.Provider value={nowPlaying}>
-      {children}
-    </NowPlayingContext.Provider>
-  );
-};
-
-/**
- * A mock version of the NowPlayingProvider which, on spacebar, 
- * starts or stops a single song.
- */
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const NowPlayingProviderMock = ({ children }: any) => {
-
-  const [nowPlaying, setNowPlaying] = useState<NowPlaying | undefined>(undefined);
-
-  const nowPlayingRaw = useMemo(() => ({
-    video: "uxUATkpMQ8A",
-    queuedBy: "uwcs:1300831",
-    seconds: 215,
-    queuedAt: 0,
-    startedAt: Date.now(),
-    queuedByDisplayName: "dixonary"
-  }), []);
-
-  const switchNowPlaying = useCallback((e: any) => {
-    if (e.key === "k") {
-      if (!nowPlaying)
-        setNowPlaying(nowPlayingRaw);
-      else
-        setNowPlaying(undefined);
+const NowPlayingProvider = ({ children }: any) => {
+  const { state } = useContext(ServerContext);
+  const playback = state?.currentVideo;
+  const queuedByDisplayName = playback ? state?.users[playback.queuerId]?.displayName ?? playback.queuerId : "";
+  const nowPlaying = playback
+    ? {
+      video: playback.videoId,
+      queuedBy: playback.queuerId,
+      seconds: playback.durationSeconds,
+      queuedAt: new Date(playback.queuedAt).getTime(),
+      startedAt: new Date(playback.startedAt).getTime(),
+      queuedByDisplayName,
     }
-
-  }, [nowPlaying, nowPlayingRaw]);
-
-  useEffect(() => {
-
-    window.addEventListener("keydown", switchNowPlaying);
-
-    return (() => {
-      window.removeEventListener("keydown", switchNowPlaying);
-    });
-
-  }, [switchNowPlaying]);
+    : undefined;
 
   return (
     <NowPlayingContext.Provider value={nowPlaying}>
@@ -72,9 +35,5 @@ const NowPlayingProviderMock = ({ children }: any) => {
     </NowPlayingContext.Provider>
   );
 };
-
-
-// Switch between the main provider and the mock
-const NowPlayingProvider = NowPlayingProvider_;
 
 export { NowPlayingContext, NowPlayingProvider };

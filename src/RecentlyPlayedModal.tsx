@@ -1,80 +1,40 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
+import React, { useContext } from "react";
+import { Modal, Spinner } from "react-bootstrap";
 import convertDuration from "./ConvertDuration";
-import { useListVals, useObjectVal } from "react-firebase-hooks/database";
-import { Spinner, Modal, ModalTitle, CloseButton, ModalBody } from "react-bootstrap";
-import ModalHeader from "react-bootstrap/esm/ModalHeader";
-import { Close } from '@mui/icons-material';
-// import { useAuth } from "./User";
+import { ServerContext } from "./ServerProvider";
 
-
-
-const RecentlyPlayedModal = ({ visible, closeRecentlyPlayed }: any) => {
-
-  const historyRef = firebase
-    .database()
-    .ref("history")
-    .orderByChild("playedAt")
-    .limitToLast(15);
-  const [history] = useListVals<any>(historyRef, { keyField: "video" });
-
-  var res;
-  if (history === null || history === undefined) {
-    res = <Spinner animation="border" />;
-  }
-  else if (history.length === 0) {
-    res = <p>There are no songs in the history.</p>;
-  }
-  else {
-    res = history.map((v) => (
-      <PublicHistoryItem key={v.video} data={v} />
-    )).reverse();
-  }
+const RecentlyPlayedModal = ({ visible, closeRecentlyPlayed }: { visible: boolean; closeRecentlyPlayed: () => void }) => {
+  const { state } = useContext(ServerContext);
+  const history = state?.history.slice(0, 15);
 
   return (
-    <Modal
-      show={visible}
-      className="recently-played-modal"
-    >
-      <ModalHeader>
-        <ModalTitle>Recently Played Songs</ModalTitle>
-        <CloseButton onClick={closeRecentlyPlayed}>
-          <Close />
-        </CloseButton>
-      </ModalHeader>
-      <ModalBody>
-        {res}
-      </ModalBody>
+    <Modal show={visible} onHide={closeRecentlyPlayed} centered scrollable>
+      <Modal.Header closeButton>
+        <Modal.Title>Recently Played Songs</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        {!history ? <Spinner animation="border" /> : history.length === 0 ? <p>There are no songs in the history.</p> : history.map((entry) => <PublicHistoryItem key={`${entry.videoId}-${entry.playedAt}`} videoId={entry.videoId} />)}
+      </Modal.Body>
     </Modal>
   );
-}
+};
 
-
-const PublicHistoryItem = ({ data, openToolbox }: any) => {
-  const [videoData] = useObjectVal<any>(
-    firebase.database().ref(`videos/${data.video}`)
-  );
+const PublicHistoryItem = ({ videoId }: { videoId: string }) => {
+  const { state } = useContext(ServerContext);
+  const video = state?.videos[videoId];
 
   return (
     <div className="history-item">
       <div className="details">
-        {videoData === undefined ||
-          videoData === null
-          ? (
-            <Spinner animation="border" />
-          ) : (
-            <>
-              <p className="title">{videoData.title}</p>
-              <div className="other-details">
-                <p className="channel-title">
-                  {videoData.channelTitle} - {convertDuration(videoData.duration)}
-                </p>
-                <a href={`https://youtube.com/watch?v=${data.video}`} target="_blank" rel="noreferrer">
-                  {data.video}
-                </a>
-              </div>
-            </>
-          )}
+        {!video ? <Spinner animation="border" /> : (
+          <>
+            <p className="title">{video.title}</p>
+            <div className="other-details">
+              <p className="channel-title">{video.channelTitle} - {convertDuration(video.durationSeconds)}</p>
+              <a href={`https://youtube.com/watch?v=${videoId}`} target="_blank" rel="noreferrer">{videoId}</a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

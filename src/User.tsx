@@ -1,86 +1,102 @@
-import React, { useContext, useRef } from "react";
-import { useAsync } from "react-async";
+import React, { useContext, useRef, useState } from "react";
 import {
+  Badge,
   Spinner,
-  Button,
   Navbar,
   NavItem,
+  Popover,
   Tooltip,
   OverlayTrigger,
 } from "react-bootstrap";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import Edit from "@mui/icons-material/Edit";
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-
-import { Navigate, useLocation } from "react-router-dom";
-
-import { AdminToolsContext } from "./AdminToolsProvider";
-import UWCSLogo from "./uwcsLogo";
-
-const AUTH_ENDPOINT =
-  "https://us-central1-amphi-compsoc.cloudfunctions.net/uwcsAuth";
-const AUTH_CB_ENDPOINT =
-  "https://us-central1-amphi-compsoc.cloudfunctions.net/uwcsAuthCallback";
-
-// A custom hook that builds on useLocation to parse
-// the query string for you.
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
-
-export const useAuth = () => {
-  const [state, setState] = React.useState(() => {
-    const user = firebase.auth().currentUser;
-    return [user, !user];
-  });
-
-  const onChange = (user: firebase.User | null) => {
-    setState([user, false]);
-  };
-
-  React.useEffect(() => {
-    // listen for auth state changes
-    const unsubscribe = firebase.auth().onAuthStateChanged(onChange);
-    // unsubscribe to the listener when unmounting
-    return () => unsubscribe();
-  }, []);
-
-  return state;
-};
+import { UserContext } from "./UserProvider";
+import { ServerContext } from "./ServerProvider";
 
 const login = () => {
-  const endpoint = AUTH_ENDPOINT + `?host=${escape(window.location.origin)}`;
-  window.location.href = endpoint;
+  window.location.assign("/auth/github");
 };
-const logout = () => {
-  firebase.auth().signOut();
+const logout = async () => {
+  await fetch("/auth/logout", { method: "POST" });
+  window.location.reload();
 };
 
 const UserBox = () => {
-  const [user, initializing] = useAuth();
-  const { isAdmin } = useContext(AdminToolsContext);
+  const { currentUser: user, userData } = useContext(UserContext);
+  const { sendCommand } = useContext(ServerContext);
+  const suspendedUntil = userData?.status;
+  const [editingDisplayName, setEditingDisplayName] = useState(false);
+  const [displayNameDraft, setDisplayNameDraft] = useState("");
+  const [displayNameError, setDisplayNameError] = useState("");
+
+  const beginDisplayNameEdit = () => {
+    setDisplayNameDraft(user?.displayName ?? "");
+    setDisplayNameError("");
+    setEditingDisplayName(true);
+  };
+
+  const saveDisplayName = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const displayName = displayNameDraft.trim();
+    if (!displayName) {
+      setDisplayNameError("Display name cannot be empty.");
+      return;
+    }
+    const result = await sendCommand("user.display-name.update", { displayName });
+    if (result.ok) {
+      setEditingDisplayName(false);
+      return;
+    }
+    setDisplayNameError("Use a display name between 1 and 80 characters.");
+  };
+
+  const accountPopover = (
+    <Popover id="account-popover" className="user-popover">
+      <Popover.Header as="div">
+        {editingDisplayName ? (
+          <form className="user-display-name-form" onSubmit={saveDisplayName}>
+            <input className="form-control form-control-sm" value={displayNameDraft} onChange={(event) => setDisplayNameDraft(event.target.value)} maxLength={80} autoFocus aria-label="Display name" />
+            <button type="submit" className="btn btn-sm admin-action admin-action-yellow">Save</button>
+            <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setEditingDisplayName(false)}>Cancel</button>
+          </form>
+        ) : (
+          <div className="user-popover-header">
+            <h3 className="user-popover-title">{user?.displayName}</h3>
+            <button type="button" className="btn user-display-name-edit" onClick={beginDisplayNameEdit} aria-label="Edit display name" title="Edit display name"><Edit fontSize="small" /></button>
+          </div>
+        )}
+      </Popover.Header>
+      <Popover.Body>
+        {displayNameError && <p className="text-danger small mb-3">{displayNameError}</p>}
+        <div className="user-detail"><span>Role</span><Badge bg={userData?.isAdmin ? "warning" : "secondary"} text={userData?.isAdmin ? "dark" : undefined}>{userData?.isAdmin ? "Admin" : "Member"}</Badge></div>
+        {suspendedUntil && <div className="user-detail user-suspension"><span>Queue access</span><strong>Until {new Date(suspendedUntil).toLocaleString()}</strong></div>}
+      </Popover.Body>
+    </Popover>
+  );
 
   return (
     <Navbar.Collapse className="justify-content-end">
       {user ? (
         <>
-          <Navbar.Text>
-            Logged in as {(user as firebase.User).displayName}
-            {isAdmin ? " (Admin)" : ""}
-          </Navbar.Text>
+          <OverlayTrigger trigger="click" rootClose placement="bottom-end" overlay={accountPopover}>
+            <button type="button" className="btn user-summary" aria-label="Account details">
+              <AccountCircle />
+              <span>{user.displayName}</span>
+            </button>
+          </OverlayTrigger>
           <NavItem>
-            <Button as="a" onClick={logout} className="uwcs-signin">
+            <button type="button" onClick={logout} className="btn uwcs-signin">
               Log out
-            </Button>
+            </button>
           </NavItem>
         </>
-      ) : initializing ? (
+      ) : user === undefined ? (
         <Spinner variant="light" animation="border" role="status" />
       ) : (
-        <Button as="a" className="uwcs-signin" onClick={login}>
-          <span>Log in with UWCS</span>
-          <UWCSLogo />
-        </Button>
+        <button type="button" className="btn uwcs-signin" onClick={login}>
+          Log in with GitHub
+        </button>
       )}
     </Navbar.Collapse>
   );
@@ -97,62 +113,11 @@ const AdminButton = ({ tooltipText, callback, icon }: any) => {
 
   return (
     <OverlayTrigger placement="bottom" overlay={tooltip}>
-      <Button as="a" ref={targetRef} onClick={callback}>
+      <button type="button" className="btn" ref={targetRef} onClick={callback}>
         {icon}
-      </Button>
+      </button>
     </OverlayTrigger>
   );
 };
 
-const firebaseLogin = async ({ code }: any) => {
-  const host = escape(window.location.origin);
-  const response = await fetch(`${AUTH_CB_ENDPOINT}?host=${host}&code=${code}`);
-  if (!response.ok) throw new Error(response.status.toString());
-  const data = await response.json();
-
-  await firebase.auth().signInWithCustomToken(data.token);
-
-  return code;
-};
-
-const LoginCallback = () => {
-  const code = useQuery().get("code");
-  // const {data, error, isPending} = useAsync({promiseFn:firebaseLogin, code: (query.get('code') ?? ""});
-  const { data } = useAsync({ promiseFn: firebaseLogin, code });
-
-  return (
-    <Navbar.Collapse className="justify-content-end">
-      <Navbar.Text>Loading user data...</Navbar.Text>
-      <Spinner variant="light" animation="border" role="status" />
-      {data && <Navigate to="/" />}
-    </Navbar.Collapse>
-  );
-};
-
-
-const firebaseBespokeLogin = async ({ code }: any) => {
-  // const host = escape(window.location.origin);
-  // const response = await fetch(`${AUTH__ENDPOINT}?host=${host}&code=${code}`);
-  // if (!response.ok) throw new Error(response.status.toString());
-  // const data = await response.json();
-
-  await firebase.auth().signInWithCustomToken(code);
-
-  return code;
-};
-
-const BespokeLoginCallback = () => {
-  const code = useQuery().get("q");
-  // const {data, error, isPending} = useAsync({promiseFn:firebaseLogin, code: (query.get('code') ?? ""});
-  const { data } = useAsync({ promiseFn: firebaseBespokeLogin, code });
-
-  return (
-    <Navbar.Collapse className="justify-content-end">
-      <Navbar.Text>Logging in custom user...</Navbar.Text>
-      <Spinner variant="light" animation="border" role="status" />
-      {data && <Navigate to="/" />}
-    </Navbar.Collapse>
-  );
-};
-
-export { UserBox, login, logout, BespokeLoginCallback, LoginCallback, AdminButton };
+export { UserBox, login, logout, AdminButton };

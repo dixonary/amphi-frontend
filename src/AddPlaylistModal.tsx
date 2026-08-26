@@ -1,13 +1,9 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
-import { Button, CloseButton, InputGroup, Modal, Spinner } from 'react-bootstrap';
+import React, { useCallback, useContext, useState } from 'react';
+import { InputGroup, Modal, Spinner } from 'react-bootstrap';
 import { AddPlaylistContext } from './AddPlaylistProvider';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
-import { Close } from '@mui/icons-material';
-import { useObjectVal } from 'react-firebase-hooks/database';
 import convertDuration from './ConvertDuration';
-import { Checkbox } from '@mui/material';
 import { QueueContext } from './QueueProvider';
+import { ServerContext } from './ServerProvider';
 
 export const AddPlaylistModal = () => {
 
@@ -18,17 +14,14 @@ export const AddPlaylistModal = () => {
   return (
     <Modal
       onShow={() => { }}
-      onHide={() => { }}
+      onHide={close}
       show={addPlaylist !== null}
       centered
       dialogClassName="narrow-dialog"
       scrollable
     >
-      <Modal.Header>
+      <Modal.Header closeButton>
         <Modal.Title>Add Songs From Playlist</Modal.Title>
-        <CloseButton onClick={() => setAddPlaylist(null)}>
-          <Close />
-        </CloseButton>
       </Modal.Header>
       <Modal.Body style={{ overflow: "hidden", padding: "0" }} >
         <RenderPlaylist playlistId={addPlaylist!} close={close} />
@@ -38,7 +31,8 @@ export const AddPlaylistModal = () => {
 };
 
 export const RenderPlaylist = ({ playlistId, close }: { playlistId: string, close: () => void }) => {
-  const [playlistData] = useObjectVal<string[]>(firebase.database().ref(`playlists/${playlistId}/videoIds`));
+  const { state } = useContext(ServerContext);
+  const playlistData = state?.playlists[playlistId]?.videoIds;
 
   return playlistData
     ? <PlaylistSelection playlistData={playlistData} close={close} />
@@ -64,8 +58,7 @@ export const PlaylistSelection = ({ playlistData, close }: { playlistData: strin
     console.dir(userQueue);
     if (!selected) return;
 
-    const queue = userQueue.queue?.val() as any[] | undefined | null;
-    if (queue === undefined) return;
+    if (userQueue.queue === undefined) return;
 
     // // Silently die if we already have the video
     // if (queue !== null && queue.findIndex((x) => x.video === videoId) !== -1) {
@@ -88,9 +81,9 @@ export const PlaylistSelection = ({ playlistData, close }: { playlistData: strin
         }
       </ul>
       </div>
-      <Button as="a" variant="info" style={{ position: "absolute", bottom: "1em", left: "50%", transform: "translateX(-50%)" }} onClick={enqueueAll}>
+      <button type="button" className="btn btn-info" style={{ position: "absolute", bottom: "1em", left: "50%", transform: "translateX(-50%)" }} onClick={enqueueAll}>
         Add all selected songs to queue
-      </Button>
+      </button>
     </>
   );
 
@@ -99,32 +92,29 @@ export const PlaylistSelection = ({ playlistData, close }: { playlistData: strin
 
 const PlaylistItem = ({ vid, selected, setSel }: { vid: string, selected: boolean, setSel: (v: string, c: boolean) => void }) => {
 
-  const checkboxRef = useRef<HTMLButtonElement>(null);
-
-  const [videoData] = useObjectVal<any>(
-    firebase.database().ref(`videos/${vid}`)
-  );
+  const { state } = useContext(ServerContext);
+  const videoData = state?.videos[vid];
 
   return (
     <div className="history-item">
-      <InputGroup style={{ alignItems: "center" }} onClick={() => checkboxRef.current?.click()} >
+      <InputGroup style={{ alignItems: "center" }} onClick={() => setSel(vid, !selected)} >
         {videoData === undefined || videoData === null ? (
           <Spinner animation="border" />
         ) : (
           <>
-            <img src={videoData.thumbnail} alt={videoData.title} style={{ objectFit: "cover", overflow: "hidden", aspectRatio: "16/9", marginRight: "1em" }} />
+            <img src={videoData.thumbnailUrl} alt={videoData.title} style={{ objectFit: "cover", overflow: "hidden", aspectRatio: "16/9", marginRight: "1em" }} />
             <div className="details">
 
               <p className="title">{videoData.title}</p>
               <div className="other-details">
                 <p className="channel-title">
-                  {videoData.channelTitle} - {convertDuration(videoData.duration)}
+                  {videoData.channelTitle} - {convertDuration(videoData.durationSeconds)}
                 </p>
               </div>
 
             </div>
           </>)}
-        <Checkbox ref={checkboxRef} checked={selected} onClick={(e) => setSel(vid, !selected)} />
+        <input className="form-check-input ms-auto" type="checkbox" checked={selected} onClick={(event) => event.stopPropagation()} onChange={(event) => setSel(vid, event.target.checked)} aria-label={`Select ${videoData?.title ?? vid}`} />
       </InputGroup>
       {/* Todo: Checkboxes for each video */}
     </div >

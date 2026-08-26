@@ -1,38 +1,33 @@
 import { Spinner } from "react-bootstrap";
 import React, { useContext } from "react";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-
-import { useAuthState } from "react-firebase-hooks/auth";
 
 import VideoListing from "./VideoListing";
-import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd';
-import { QueueContext, VidInfo } from "./QueueProvider";
+import { Draggable, DragDropContext, Droppable } from '@hello-pangea/dnd';
+import { QueueContext } from "./QueueProvider";
+import { UserContext } from "./UserProvider";
 
 const MyQueue = () => {
-  const [user] = useAuthState(firebase.auth());
+  const { currentUser: user } = useContext(UserContext);
   return (!user
     ? (<p>Sign in to see your queue.</p>)
-    : (<UserQueue user={user} />)
+    : (<UserQueue />)
   );
 };
 
-const UserQueue = ({ user }: { user: firebase.User }) => {
+const UserQueue = () => {
   const { queue, moveVideo } = useContext(QueueContext);
 
   const reorderList = async ({ source, destination, draggableId }: any) => {
     if (!destination) return;
     if (source === destination) return;
 
-    await moveVideo(draggableId, destination.index)
+    await moveVideo(Number(draggableId), destination.index)
   };
 
   if (queue === undefined) {
     return (<Spinner animation="border" />);
   }
-  const queueVal = queue.val() as VidInfo[] | null;
-
-  if (queueVal === null || queue.numChildren() === 0) {
+  if (queue.length === 0) {
     return (<p>Your queue is empty.</p>);
   }
 
@@ -46,11 +41,11 @@ const UserQueue = ({ user }: { user: firebase.User }) => {
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
-            {queueVal.map((v: any, idx: number) => (
+            {queue.map((v, idx) => (
               <Draggable
-                draggableId={v.video}
+                draggableId={String(v.queueItemId)}
                 index={idx}
-                key={v.video ?? undefined}
+                key={v.queueItemId}
               >
                 {(provided) => (
                   <VideoListing provided={provided} data={v} localQueue={true} />

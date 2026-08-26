@@ -2,42 +2,33 @@
   "name": "amphi-frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.0",
-    "@firebase/app-types": "^0.6.1",
-    "@mui/icons-material": "^5.15.14",
-    "@mui/material": "^5.15.14",
-    "@mui/styles": "^5.15.14",
-    "@react-three/fiber": "^8.16.0",
-    "bootstrap": "^4.6.0",
-    "client-oauth2": "^4.2.5",
-    "cookie-parser": "^1.4.5",
-    "firebase": "^9.0.1",
-    "firebase-functions": "^3.11.0",
-    "plyr": "^3.7.8",
-    "plyr-react": "^5.1.2",
-    "querystring": "^0.2.0",
-    "react": "^18.0.1",
-    "react-async": "^10.0.1",
-    "react-beautiful-dnd": "^13.0.0",
-    "react-bootstrap": "^2.10.2",
-    "react-dom": "^18.2.0",
-    "react-firebase-hooks": "^3.0.1",
-    "react-player": "^2.12.0",
-    "react-router-dom": "^6.22.3",
-    "react-scripts": "5.0.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@mui/icons-material": "^9.3.1",
+    "@mui/material": "^9.3.1",
+    "@react-three/fiber": "^9.7.0",
+    "bootstrap": "^5.3.8",
+    "plyr": "^3.8.4",
+    "plyr-react": "^6.0.0",
+    "react": "^19.2.8",
+    "react-bootstrap": "^2.10.10",
+    "react-dom": "^19.2.8",
+    "react-player": "^3.4.0",
+    "react-router-dom": "^7.18.2",
     "react-youtube": "^10.1.0",
-    "three": "^0.162.0"
+    "three": "^0.185.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "resolutions": {
+    "@babel/runtime": "^7.26.10",
+    "yaml": "^1.10.3"
   },
   "browserslist": {
     "production": [
@@ -52,14 +43,13 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@types/cookie-parser": "^1.4.2",
-    "@types/node": "^14.14.31",
-    "@types/react-beautiful-dnd": "^13.1.8",
-    "@types/react-dom": "^18.2.23",
+    "@types/node": "^26.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "@types/react-youtube": "^7.6.2",
-    "@types/three": "^0.162.0",
-    "eslint-config-react-app": "^7.0.1",
-    "typescript": "^5.4.3"
+    "@types/three": "^0.185.1",
+    "@vitejs/plugin-react": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2"
   }
 }

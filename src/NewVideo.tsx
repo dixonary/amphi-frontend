@@ -1,57 +1,33 @@
-import { useState, useEffect, useContext, useCallback, useMemo } from "react";
-import { Alert, Spinner, Button } from "react-bootstrap";
-import { useObjectVal } from "react-firebase-hooks/database";
-import { PlaylistAdd } from "@mui/icons-material";
-import React from "react";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
-
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { Alert, Spinner } from "react-bootstrap";
+import PlaylistAdd from "@mui/icons-material/PlaylistAdd";
 import convertDuration from "./ConvertDuration";
-import { UserContext } from "./UserProvider";
-import { QueueContext } from "./QueueProvider";
 import { AddPlaylistContext } from "./AddPlaylistProvider";
+import { ServerContext } from "./ServerProvider";
+import { UserContext } from "./UserProvider";
 
-// Regex for youtube video URLs
-const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
-// Regex for youtube IDs only
-const ID_REGEX = /^([\w-]{11})$/;
-// Regex for youtube playlist URLs
-const PLAYLIST_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
+const VIDEO_URL = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu\.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
+const VIDEO_ID = /^([\w-]{11})$/;
+const PLAYLIST_URL = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
 
 const NewVideo = ({ setAccordion, inputRef }: any) => {
-  const [inputVal, setInputVal] = useState("");
-  const [error, setError] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [videoId, setVideoId] = useState("");
   const [playlistId, setPlaylistId] = useState("");
-  const user = useContext(UserContext);
+  const { currentUser, userData } = useContext(UserContext);
 
-  const updateVideoUrl = useCallback(async (newVal: string) => {
-    let res;
-    setInputVal(newVal);
-
-    res = newVal.match(PLAYLIST_REGEX);
-    if (res !== null) {
-      // Exact match on playlist IDs
-      setError("");
+  const updateInput = useCallback((value: string) => {
+    setInputValue(value);
+    const playlistMatch = value.match(PLAYLIST_URL);
+    if (playlistMatch) {
       setVideoId("");
-      setPlaylistId(res[5] as string);
+      setPlaylistId(playlistMatch[5]);
       return;
     }
 
-    res = newVal.match(ID_REGEX);
-    if (res !== null) {
-      // Exact match on video IDs
-      setError("");
-      setVideoId(newVal);
-      setPlaylistId("");
-      return;
-    }
-
-    res = newVal.match(YT_REGEX);
-    if (res !== null) {
-      // Match YT url pattern
-      setError("");
-      setVideoId(res[5] as string);
+    const videoMatch = value.match(VIDEO_ID) ?? value.match(VIDEO_URL);
+    if (videoMatch) {
+      setVideoId(videoMatch[videoMatch.length - 2] ?? value);
       setPlaylistId("");
       return;
     }
@@ -60,63 +36,39 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
     setPlaylistId("");
   }, []);
 
-
-
   const reset = useCallback(() => {
-    setInputVal("");
+    setInputValue("");
     setVideoId("");
     setPlaylistId("");
     setAccordion("my-queue");
-  }, [setInputVal, setVideoId, setPlaylistId, setAccordion]);
-
+  }, [setAccordion]);
 
   useEffect(() => {
-    const pasteHandler = async (e: KeyboardEvent) => {
+    const pasteHandler = async (event: KeyboardEvent) => {
       if (inputRef.current?.id === document.activeElement?.id) {
-        console.log("Skipping auto paste");
         return;
       }
-      // console.log(e.key);
-      if (e.ctrlKey && !e.shiftKey && e.key === "v") {
-        e.preventDefault();
-        let clip = "";
+      if (event.ctrlKey && !event.shiftKey && event.key === "v") {
+        event.preventDefault();
         try {
-          clip = await navigator.clipboard.readText()
-        }
-        catch (e: any) {
+          updateInput(await navigator.clipboard.readText());
           setAccordion("new-video");
-          setTimeout(() => inputRef.current?.focus(), 1);
-          return;
+        } catch {
+          setAccordion("new-video");
+          window.setTimeout(() => inputRef.current?.focus(), 1);
         }
-        console.log(clip);
-        if (clip.match(YT_REGEX) !== null)
-          updateVideoUrl(clip);
-        setAccordion("new-video");
       }
     };
 
-    window.addEventListener('keydown', pasteHandler);
-    return () => {
-      window.removeEventListener('keydown', pasteHandler);
-    };
-  }, [updateVideoUrl, inputRef, setAccordion]);
+    window.addEventListener("keydown", pasteHandler);
+    return () => window.removeEventListener("keydown", pasteHandler);
+  }, [inputRef, setAccordion, updateInput]);
 
-
-
-  if (user.firebaseUser === undefined || user.firebaseUser === null) {
+  if (!currentUser) {
     return <p>Sign in to add videos to your queue.</p>;
   }
-
-  if (user.userData?.status === "banned") {
-    return <p>You may not queue videos.</p>;
-  }
-  if (user.userData?.status !== null && user.userData?.status !== undefined) {
-    return (
-      <p>
-        You may queue songs again after{" "}
-        {timeToDurationString(user.userData.status)}.
-      </p>
-    );
+  if (userData?.status) {
+    return <p>You may queue songs again after {new Date(userData.status).toLocaleString()}.</p>;
   }
 
   return (
@@ -126,231 +78,101 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
           ref={inputRef}
           className="form-control"
           id="yt-video-input"
-          name="yt-video"
-          value={inputVal}
-          onChange={(e) => updateVideoUrl(e.target.value)}
+          value={inputValue}
+          onChange={(event) => updateInput(event.target.value)}
           type="text"
-          placeholder="Youtube ID or URL..."
+          placeholder="YouTube ID or URL..."
           autoComplete="off"
         />
       </div>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {videoId !== "" && (
-        <VideoData
-          videoId={videoId}
-          updateVideoUrl={updateVideoUrl}
-          resetData={reset}
-        />
-      )}
-      {playlistId !== "" && (
-        <PlaylistData
-          playlistId={playlistId}
-          resetData={reset}
-        />
-      )}
+      {inputValue && !videoId && !playlistId && <Alert variant="danger">Enter a valid YouTube video or playlist URL.</Alert>}
+      {videoId && <VideoAction videoId={videoId} reset={reset} />}
+      {playlistId && <PlaylistAction playlistId={playlistId} reset={reset} />}
     </>
   );
 };
 
-const timeToDurationString = (then: number) => {
-  const seconds = (then - Date.now()) / 1000;
-  if (seconds > 3600) {
-    return Math.round(seconds / 3600) + " hours";
-  }
-  if (seconds > 60) {
-    return Math.round(seconds / 60) + " minutes";
-  }
-  return seconds + " seconds";
-};
+const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void }) => {
+  const { state, sendCommand } = useContext(ServerContext);
+  const video = state?.videos[videoId];
+  const [loading, setLoading] = useState(false);
+  const [failureMessage, setFailureMessage] = useState("");
+  const alreadyQueued = Object.values(state?.queues ?? {}).some((queue) =>
+    queue.some((item) => item.videoId === videoId)
+  );
+  const recentlyPlayed = state?.history.some(
+    (entry) =>
+      entry.videoId === videoId &&
+      Date.now() - new Date(entry.playedAt).getTime() < (state.settings.minTimeDiff * 1000)
+  ) === true;
+  const queueBlockMessage = alreadyQueued
+    ? "Already in the playlist"
+    : recentlyPlayed
+      ? "Played too recently"
+      : "";
 
-const PlaylistData = ({ playlistId, resetData }: any) => {
-  const playlistRef = useMemo(() => firebase.database().ref(`playlists/${playlistId}`), [playlistId]);
-  const [playlistData, loading] = useObjectVal<any>(playlistRef);
-  const { setAddPlaylist } = useContext(AddPlaylistContext);
-
-  // Tell the cloud about the new playlist ID we want populated
-  // (But check if it's already been done first!)
-  useEffect(() => {
-    if (!playlistRef) return;
-    const runAsync = async () => {
-      const currentState = (await playlistRef.once("value")).val();
-      if (currentState === null) {
-        await playlistRef.set({ loading: true });
+  const addOrQueue = async () => {
+    setLoading(true);
+    setFailureMessage("");
+    if (!video) {
+      const result = await sendCommand("video.add", { videoId });
+      if (!result.ok) setFailureMessage("Unable to load this video.");
+    } else if (video.embeddable) {
+      const result = await sendCommand("queue.add", { videoId });
+      if (result.ok) {
+        reset();
+      } else if (result.code === "video_already_queued") {
+        setFailureMessage("This video is already in the playlist.");
+      } else if (result.code === "video_recently_played") {
+        setFailureMessage("This video was played too recently.");
+      } else {
+        setFailureMessage("Unable to add this video to the playlist.");
       }
-    };
-    runAsync();
-  }, [playlistRef]);
-
-  const enqueue = useCallback(async () => {
-    if (!playlistData) return;
-    if (!playlistId) return;
-
-    setAddPlaylist(playlistId);
-    resetData();
-  }, [playlistData, resetData, setAddPlaylist, playlistId]);
-
-  useEffect(() => {
-    const enterHandler = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        enqueue();
-      }
-    };
-
-    window.addEventListener('keypress', enterHandler);
-    return () => {
-      window.removeEventListener('keypress', enterHandler);
-    };
-  }, [enqueue]);
-
-  if (loading || (playlistData?.loading && !playlistData.title)) {
-    return (
-      <div className="video-details">
-        <Spinner animation="border" className="margin-auto" />
-      </div>
-    );
-  }
-
-  if (playlistData !== null) {
-    return (
-      <>
-
-        <Button
-          as="a"
-          onClick={enqueue}
-          variant="info"
-          className="enqueue-video"
-          style={{ marginTop: "1rem" }}
-        >
-          {playlistData?.loading ? (
-            <Spinner animation="border" />
-          ) : (
-            <>Load music from playlist</>
-          )}
-        </Button>
-      </>
-    );
-  }
-};
-
-
-const VideoData = ({ videoId, resetData }: any) => {
-  const videoRef = firebase.database().ref(`videos/${videoId}`);
-  const [videoData, loading, error] = useObjectVal<any>(videoRef);
-  const userQueue = useContext(QueueContext);
-
-  useEffect(() => {
-    console.log(videoData, loading, error);
-  }
-    , [videoData, loading, error]);
-
-  // Tell the cloud about the new video ID we want populated
-  // (But check if it's already been done first!)
-  useEffect(() => {
-    const runAsync = async () => {
-      const currentState = (await videoRef.once("value")).val();
-      if (currentState === null) {
-        await videoRef.set({ loading: true });
-      }
-    };
-    runAsync();
-  }, [videoRef]);
-
-  const enqueue = useCallback(async () => {
-    if (videoData === null) return;
-
-    const queue = userQueue.queue?.val() as any[] | undefined | null;
-    if (queue === undefined) return;
-
-    // Silently die if we already have the video
-    if (queue !== null && queue.findIndex((x) => x.video === videoId) !== -1) {
-      // window.alert("You cannot queue the same song more than once at a time.");
-      // return;
     }
+    setLoading(false);
+  };
 
-    // Force loading state on button
-    videoData.loading = true;
-
-    await userQueue.enqueueVideo(videoId);
-    resetData();
-  }, [userQueue, videoData, videoId, resetData]);
-
-  useEffect(() => {
-    const enterHandler = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        console.log(videoData?.embeddable);
-        (!(videoData?.embeddable) ? () => { } : enqueue)();
-      }
-    };
-
-    window.addEventListener('keypress', enterHandler);
-    return () => {
-      window.removeEventListener('keypress', enterHandler);
-    };
-  }, [videoData, enqueue]);
-
-
-  if (loading || (videoData?.loading && !videoData.title)) {
-    return (
-      <div className="video-details">
-        <Spinner animation="border" className="margin-auto" />
-      </div>
-    );
-  }
-
-
-
-  let isProblem: string | null = null;
-  if (videoData?.embeddable === false) isProblem = "Video is not embeddable";
-
-
-
-
-  if (videoData !== null) {
-    return (
-      <>
-        <div className="video-details">
-          <div className="thumb-sizer">
-            <div
-              className="thumb-wrapper"
-              style={{
-                backgroundImage: `url(${videoData.thumbnail})`,
-                backgroundPosition: "center center",
-                backgroundSize: "cover",
-              }}
-            >
-            </div>
-            <p className="duration">{convertDuration(videoData.duration)}</p>
-          </div>
+  return (
+    <div className="video-details">
+      {video && (
+        <>
+          <img className="thumbnail" src={video.thumbnailUrl} alt="" />
           <div className="info">
-            <p className="title">{videoData.title}</p>
-            <p className="channel">{videoData.channelTitle}</p>
+            <p className="title">{video.title}</p>
+            <p className="channel">{video.channelTitle} - {convertDuration(video.durationSeconds)}</p>
           </div>
-        </div>
+        </>
+      )}
+      <button type="button" className={`btn enqueue-video ${video?.embeddable === false ? "btn-danger" : "btn-info"}`} onClick={addOrQueue} disabled={loading || video?.embeddable === false || Boolean(queueBlockMessage)}>
+        {loading ? <Spinner animation="border" /> : video?.embeddable === false ? "Video is not embeddable" : queueBlockMessage || (video ? <PlaylistAdd /> : "Load video")}
+      </button>
+      {failureMessage && <Alert variant="danger">{failureMessage}</Alert>}
+    </div>
+  );
+};
 
-        <Button
-          as="a"
-          onClick={isProblem ? () => { } : enqueue}
-          variant={isProblem ? "danger" : "info"}
-          className="enqueue-video"
-        >
-          {videoData?.loading ? (
-            <Spinner animation="border" />
-          ) : isProblem !== null ? (
-            isProblem
-          ) : (
-            <PlaylistAdd />
-          )}
-        </Button>
-      </>
-    );
-  }
+const PlaylistAction = ({ playlistId, reset }: { playlistId: string; reset: () => void }) => {
+  const { state, sendCommand } = useContext(ServerContext);
+  const { setAddPlaylist } = useContext(AddPlaylistContext);
+  const [loading, setLoading] = useState(false);
+  const playlist = state?.playlists[playlistId];
 
-  if (error) {
-    return <p>{error.message}</p>;
-  }
+  const addOrSelect = async () => {
+    setLoading(true);
+    if (!playlist) {
+      await sendCommand("playlist.add", { playlistId });
+    } else {
+      setAddPlaylist(playlistId);
+      reset();
+    }
+    setLoading(false);
+  };
 
-  // If all else fails, render a spinner
-  return <Spinner animation="border" />;
+  return (
+    <button type="button" className="btn btn-info enqueue-video" onClick={addOrSelect} disabled={loading}>
+      {loading ? <Spinner animation="border" /> : playlist ? "Select playlist videos" : "Load playlist"}
+    </button>
+  );
 };
 
 export default NewVideo;

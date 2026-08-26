@@ -1,49 +1,16 @@
-import React, {
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useContext } from "react";
 import YouTube from "react-youtube";
 import NoVideo from "./NoVideo";
 import { NowPlayingContext } from "./NowPlayingProvider";
 
 const Player = () => {
   const nowPlaying = useContext(NowPlayingContext);
-  // const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [youtube, setYoutube] = useState<any>(null);
-  const [inDOM, setInDOM] = useState<boolean>(false);
-
-  const ready = useCallback(
-    ({ target }: { target: any }) => {
-      setYoutube(target);
-      setInDOM(true);
-    },
-    [setYoutube, setInDOM]
-  );
-
-  useEffect(() => {
-    if (!nowPlaying && inDOM) {
-      setInDOM(false);
-    }
-  }, [setInDOM, nowPlaying, inDOM]);
-
-  useEffect(() => {
-    if (nowPlaying === undefined || nowPlaying === null || !inDOM)
-      return;
-
-    const ss = Math.floor((Date.now() - nowPlaying.startedAt) / 1000);
-    // setStartSeconds(ss);
-    console.log(nowPlaying);
-    if (youtube !== null) {
-      youtube.loadVideoById({ videoId: nowPlaying.video, startSeconds: ss });
-    }
-  }, [nowPlaying, youtube, inDOM]);
 
   if (nowPlaying === undefined || nowPlaying === null) {
     return <NoVideo />;
   }
+
+  const startSeconds = Math.max(0, Math.floor((Date.now() - nowPlaying.startedAt) / 1000));
 
   const startedPlaying = ({ target }: { target: any }) => {
 
@@ -69,7 +36,8 @@ const Player = () => {
 
   return (
     <YouTube
-      videoId={undefined}
+      key={nowPlaying.video}
+      videoId={nowPlaying.video}
       className="video-wrapper"
       opts={{
         height: "100%",
@@ -77,10 +45,9 @@ const Player = () => {
         playerVars: {
           // https://developers.google.com/youtube/player_parameters
           autoplay: 1,
-          start: 0,
+          start: startSeconds,
         },
       }}
-      onReady={ready}
       onPlay={startedPlaying}
       onStateChange={(event) => {
         // console.log("===Debug information===");

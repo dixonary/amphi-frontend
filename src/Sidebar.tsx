@@ -4,14 +4,12 @@ import React, {
   useEffect,
   useRef,
   useCallback,
-  useMemo,
   ReactNode,
 } from "react";
 import {
   Accordion,
   Card,
   Spinner,
-  Button,
   OverlayTrigger,
   Tooltip,
   useAccordionButton,
@@ -22,14 +20,14 @@ import Playlist from "./Playlist";
 import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
-import { SkipNext, Assignment, History } from "@mui/icons-material";
+import SkipNext from "@mui/icons-material/SkipNext";
+import Assignment from "@mui/icons-material/Assignment";
+import History from "@mui/icons-material/History";
 import convertDuration from "./ConvertDuration";
-import { useObjectVal } from "react-firebase-hooks/database";
-import { UserContext, UserState } from "./UserProvider";
-import { Visibility } from "@mui/icons-material";
+import { UserContext } from "./UserProvider";
+import Visibility from "@mui/icons-material/Visibility";
 import { RecentlyPlayedModal } from "./RecentlyPlayedModal";
+import { ServerContext } from "./ServerProvider";
 
 
 function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey: string, onclick?: () => void }) {
@@ -38,14 +36,13 @@ function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey
   });
 
   return (
-    // eslint-disable-next-line jsx-a11y/anchor-is-valid
-    <a
-      href="#"
-      style={{ display: "inline-block", flex: 1 }}
+    <button
+      type="button"
+      className="accordion-toggle"
       onClick={decoratedOnClick}
     >
       {children}
-    </a>
+    </button>
   );
 }
 
@@ -91,14 +88,14 @@ const Sidebar = () => {
             <Toggle eventKey="__">
               <span style={{ display: "inline" }}>Playlist</span>
             </Toggle>
-            {user.firebaseUser && (
-              <Tooltipped tooltipText="Recently Played"><Button className="history-btn" style={{ flex: 0 }} onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
+            {user.currentUser && (
+              <Tooltipped tooltipText="Recently Played"><button type="button" className="btn history-btn" style={{ flex: 0 }} onClick={() => setRecentlyPlayedVisible(true)}><History /></button></Tooltipped>)}
           </Card.Header>
           <Card.Body>
             <Playlist />
           </Card.Body>
         </Card>
-        {user.firebaseUser && (
+        {user.currentUser && (
           <>
             <Card bg="dark" className="my-queue">
               <Card.Header>
@@ -146,34 +143,15 @@ const Sidebar = () => {
 const NowPlayingSidebar = () => {
   const userData = useContext(UserContext);
   const nowPlaying = useContext(NowPlayingContext);
-  const { isAdmin, playNextVideo, openToolbox } = useContext(AdminToolsContext);
-  const [videoData, setVideoData] = useState<any>(null);
-
-  const [hasVoteskipped] = useObjectVal<boolean | null>(
-    firebase.database().ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
-  );
+  const { openToolbox } = useContext(AdminToolsContext);
+  const { state, sendCommand } = useContext(ServerContext);
+  const isAdmin = state?.currentUser?.isAdmin === true;
+  const videoData = nowPlaying ? state?.videos[nowPlaying.video] : undefined;
+  const hasVoteskipped = state?.voteSkip.hasVoted === true;
 
   const voteSkip = useCallback(async () => {
-    await firebase
-      .database()
-      .ref(`voteskip/user/${userData?.firebaseUser?.uid}`)
-      .set(true);
-  }, [userData]);
-
-  useEffect(() => {
-    if (nowPlaying?.video === undefined) {
-      setVideoData(undefined);
-      return;
-    }
-    const getVideoData = async () => {
-      const vidData = await firebase
-        .database()
-        .ref(`videos/${nowPlaying.video}`)
-        .once("value");
-      setVideoData(vidData.val());
-    };
-    getVideoData();
-  }, [nowPlaying]);
+    await sendCommand("vote.skip");
+  }, [sendCommand]);
 
   if (nowPlaying === null || nowPlaying === undefined)
     return (
@@ -191,7 +169,7 @@ const NowPlayingSidebar = () => {
             <p className="title">{videoData.title}</p>
             <div className="other-details">
               <p className="channel-title">
-                {videoData.channelTitle} - {convertDuration(videoData.duration)}
+                {videoData.channelTitle} - {convertDuration(videoData.durationSeconds)}
               </p>
               <p className="displayName">{nowPlaying?.queuedByDisplayName}</p>
             </div>
@@ -199,26 +177,22 @@ const NowPlayingSidebar = () => {
         )}
       </div>
       <div className="button-row">
-        {(isAdmin ||
-          (nowPlaying?.queuedBy &&
-            nowPlaying?.queuedBy === userData?.userData?.uid)) && (
-            <Tooltipped tooltipText="Skip">
-              <Button
-                as="a"
-                className="delete admin"
-                variant="dark"
-                onClick={() => playNextVideo(nowPlaying.video)}
-              >
-                <SkipNext />
-              </Button>
-            </Tooltipped>
-          )}
+        {isAdmin && (
+          <Tooltipped tooltipText="Skip">
+            <button
+              type="button"
+              className="btn btn-dark delete admin"
+              onClick={() => sendCommand("admin.play-next")}
+            >
+              <SkipNext />
+            </button>
+          </Tooltipped>
+        )}
         {isAdmin && (
           <Tooltipped tooltipText="Open Toolbox">
-            <Button
-              as="a"
-              className="tools admin"
-              variant="dark"
+            <button
+              type="button"
+              className="btn btn-dark tools admin"
               onClick={() =>
                 openToolbox({
                   video: nowPlaying?.video,
@@ -227,19 +201,20 @@ const NowPlayingSidebar = () => {
               }
             >
               <Assignment />
-            </Button>
+            </button>
           </Tooltipped>
         )}
-        {userData.firebaseUser !== undefined && hasVoteskipped !== true && (
-          <Tooltipped tooltipText="Voteskip">
-            <Button
-              as="a"
-              className="voteskip"
-              variant="dark"
+        {userData.currentUser !== undefined && (
+          <Tooltipped tooltipText={hasVoteskipped ? "Voteskip recorded" : "Voteskip"}>
+            <button
+              type="button"
+              className="btn btn-dark voteskip"
               onClick={voteSkip}
+              disabled={hasVoteskipped}
+              aria-label={hasVoteskipped ? "Voteskip recorded" : "Voteskip"}
             >
               <SkipNext />
-            </Button>
+            </button>
           </Tooltipped>
         )}
       </div>
@@ -248,17 +223,8 @@ const NowPlayingSidebar = () => {
 };
 
 const CurrentViewers = () => {
-  const user = useContext<UserState>(UserContext);
-  const numViewersRef = firebase.database().ref(`numViewers`);
-  const [numViewers] = useObjectVal<number>(numViewersRef);
-
-  useEffect(() => {
-    const uid = user?.firebaseUser?.uid;
-    if (uid === undefined) return;
-    const ref = firebase.database().ref(`users/${uid}/online`);
-    ref.set(true);
-    ref.onDisconnect().set(false);
-  }, [user]);
+  const { state } = useContext(ServerContext);
+  const numViewers = state?.viewerCount;
 
   if (numViewers === undefined) return <></>;
   return (
@@ -270,33 +236,15 @@ const CurrentViewers = () => {
 };
 
 const CurrentSkips = () => {
-  const numSkipsRef = firebase.database().ref(`voteskip/count`);
-  const [numSkips] = useObjectVal<number>(numSkipsRef);
-  const user = useContext(UserContext);
+  const { state, sendCommand } = useContext(ServerContext);
+  const numSkips = state?.voteSkip.count;
+  const hasSkipped = state?.voteSkip.hasVoted === true;
 
-  const skippedRef = useMemo(
-    () =>
-      !user
-        ? undefined
-        : firebase.database().ref(`voteskip/user/${user.firebaseUser?.uid}`),
-    [user]
-  );
-
-  const [hasSkipped] = useObjectVal<boolean>(skippedRef);
-
-  const voteSkip = useCallback(async () => {
-    await skippedRef?.set(true);
-  }, [skippedRef]);
-
-  const skip = useMemo(
-    () =>
-      hasSkipped
-        ? () => {
-          console.log("Skipped already");
-        }
-        : voteSkip,
-    [hasSkipped, voteSkip]
-  );
+  const skip = () => {
+    if (!hasSkipped) {
+      void sendCommand("vote.skip");
+    }
+  };
 
   if (!numSkips) return <></>;
   return (
@@ -312,17 +260,12 @@ const CurrentSkips = () => {
 };
 
 const HasVoteskipped = () => {
-  const user = useContext<UserState>(UserContext);
-  const skippedRef = firebase
-    .database()
-    .ref(`voteskip/user/${user.firebaseUser?.uid}`);
+  const { state } = useContext(ServerContext);
 
-  const [hasSkipped] = useObjectVal<boolean>(skippedRef);
-
-  if (!user.firebaseUser?.uid) {
+  if (!state?.currentUser) {
     return <></>;
   }
-  return hasSkipped === true ? <span>voteskipped</span> : <></>;
+  return state.voteSkip.hasVoted ? <span>voteskipped</span> : <></>;
 };
 
 const Tooltipped = ({ tooltipText, children }: any) => {

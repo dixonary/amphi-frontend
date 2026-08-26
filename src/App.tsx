@@ -1,47 +1,35 @@
-import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
+import React, { useEffect, useContext, useRef, useMemo } from "react";
 import {
   Navbar,
   Tooltip,
   OverlayTrigger,
   NavItem,
-  Button,
 } from "react-bootstrap";
 
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./main.css";
 
 import Main from "./Main";
-import { UserBox, LoginCallback, BespokeLoginCallback, AdminButton } from "./User";
+import { UserBox, AdminButton } from "./User";
 import { UserProvider } from "./UserProvider";
 import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
 import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
-import { Close, Settings, CenterFocusStrong } from "@mui/icons-material";
+import Close from "@mui/icons-material/Close";
+import Settings from "@mui/icons-material/Settings";
+import CenterFocusStrong from "@mui/icons-material/CenterFocusStrong";
 import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
 import { Tooltipped } from "./Sidebar";
 import { AddPlaylistProvider } from "./AddPlaylistProvider";
 import QueueProvider from "./QueueProvider";
+import { ServerContext, ServerProvider } from "./ServerProvider";
 
 /******************************************************************************/
 /* Constants */
 const UnderConstruction: boolean = false;
 
 /******************************************************************************/
-/* Main application logic */
-
-firebase.initializeApp({
-  projectId: "amphi-compsoc",
-  apiKey: "AIzaSyCOXtTbrBZ3qAKlfBHPh1t5KzPYqLA3CZU", // Auth / General Use
-  authDomain: "amphi-compsoc.firebaseapp.com", // Auth with popup/redirect
-  databaseURL: "https://amphi-compsoc.firebaseio.com", // Realtime Database
-  storageBucket: "amphi-compsoc.appspot.com", // Storage
-});
-
 function App() {
   return (
-    <Router>
+    <ServerProvider>
       <ModeProvider>
         <NowPlayingProvider>
           <UserProvider>
@@ -56,7 +44,7 @@ function App() {
           </UserProvider>
         </NowPlayingProvider>
       </ModeProvider>
-    </Router>
+    </ServerProvider>
   );
 }
 
@@ -76,11 +64,7 @@ const Header = () => {
         <Navbar.Toggle />
         <Navbar.Collapse>
           <NowPlayingText />
-          <Routes>
-            <Route path="/auth/login/*" element={<LoginCallback />} />
-            <Route path="/auth/bespoke-login/*" element={<BespokeLoginCallback />} />
-            <Route path="/" element={<UserBox />} />
-          </Routes>
+          <UserBox />
         </Navbar.Collapse>
       </Navbar>
       {UnderConstruction && <UnderConstructionNotice />}
@@ -120,13 +104,13 @@ const ToggleModeButton = () => {
   return (
     <NavItem>
       <Tooltipped tooltipText="Switch View Mode">
-        <Button
-          as="a"
+        <button
+          type="button"
           onClick={() => switchMode(nextMode)}
-          className="switch-mode"
+          className="btn switch-mode"
         >
           <CenterFocusStrong />
-        </Button>
+        </button>
       </Tooltipped>
     </NavItem>
   );
@@ -134,24 +118,18 @@ const ToggleModeButton = () => {
 
 const NowPlayingText = () => {
   const nowPlaying = useContext(NowPlayingContext);
-  const [videoData, setVideoData] = useState<any>(null);
+  const { state } = useContext(ServerContext);
+  const videoData = nowPlaying ? state?.videos[nowPlaying.video] : undefined;
 
   useEffect(() => {
     if (nowPlaying?.video === undefined) {
-      setVideoData(undefined);
       window.document.title = "Amphi";
       return;
     }
-    const getVideoData = async () => {
-      const vidData = await firebase
-        .database()
-        .ref(`videos/${nowPlaying.video}`)
-        .once("value");
-      window.document.title = `${vidData.val().title} - Amphi`;
-      setVideoData(vidData.val());
-    };
-    getVideoData();
-  }, [nowPlaying]);
+    if (videoData) {
+      window.document.title = `${videoData.title} - Amphi`;
+    }
+  }, [nowPlaying, videoData]);
 
   const tooltip = (props: any) => (
     <Tooltip id={`now-playing-tooltip`} {...props}>

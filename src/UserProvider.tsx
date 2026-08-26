@@ -1,17 +1,23 @@
-import { useAuthState } from "react-firebase-hooks/auth";
-import React from "react";
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/database';
-import { useObjectVal } from "react-firebase-hooks/database";
+import React, { useContext } from "react";
+import { ServerContext } from "./ServerProvider";
+
+export type ClientUser = {
+  id: string;
+  displayName: string;
+};
 
 export type UserState = {
-  firebaseUser: firebase.User | null | undefined;
-  userData: any;
-  error: firebase.auth.Error | undefined;
+  currentUser: ClientUser | null | undefined;
+  userData: {
+    id: string;
+    displayName: string;
+    isAdmin: boolean;
+    status: string | undefined;
+  } | undefined;
+  error: undefined;
 };
 const noUserState = {
-  firebaseUser: undefined,
+  currentUser: undefined,
   userData: undefined,
   error: undefined,
 };
@@ -19,12 +25,25 @@ const noUserState = {
 const UserContext = React.createContext<UserState>(noUserState);
 
 const UserProvider = ({ children }: any) => {
-  const [user, , error] = useAuthState(firebase.auth());
-  const [udata] = useObjectVal(firebase.database().ref(`users/${user?.uid}`));
+  const { state } = useContext(ServerContext);
+  const sessionUser = state?.currentUser;
+  const user = sessionUser
+    ? { id: sessionUser.user, displayName: sessionUser.displayName }
+    : state
+      ? null
+      : undefined;
+  const userData = sessionUser
+    ? {
+      id: sessionUser.user,
+      displayName: sessionUser.displayName,
+      isAdmin: sessionUser.isAdmin,
+      status: state?.users[sessionUser.user]?.suspendedUntil ?? undefined,
+    }
+    : undefined;
 
   return (
     <UserContext.Provider
-      value={{ error, firebaseUser: user, userData: udata }}
+      value={{ error: undefined, currentUser: user, userData }}
     >
       {children}
     </UserContext.Provider>

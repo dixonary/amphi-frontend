@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Delete, Assignment } from "@mui/icons-material";
-import { Spinner, Button } from "react-bootstrap";
-
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/database';
+import React, { useContext, useState } from "react";
+import Delete from "@mui/icons-material/Delete";
+import Assignment from "@mui/icons-material/Assignment";
+import { Spinner } from "react-bootstrap";
 
 import convertDuration from "./ConvertDuration";
 import { QueueContext } from "./QueueProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import { Tooltipped } from "./Sidebar";
+import { PlaybackBucketItem, QueueItem, ServerContext } from "./ServerProvider";
 
 const VideoListing = ({
   provided,
@@ -16,29 +15,21 @@ const VideoListing = ({
   localQueue,
 }: {
   provided: any;
-  data: any;
+  data: QueueItem | PlaybackBucketItem;
   localQueue: boolean;
 }) => {
-  const [videoData, setVideoData] = useState<any>(null);
+  const { state, sendCommand } = useContext(ServerContext);
   const { removeVideo } = useContext(QueueContext);
   const { isAdmin, dequeueVideo, openToolbox } = useContext(AdminToolsContext);
   const [isDeleting, setisDeleting] = useState<boolean>(false);
+  const videoData = state?.videos[data.videoId];
+  const queueUser = "user" in data ? data.user : state?.currentUser?.user;
+  const displayName = "displayName" in data ? data.displayName : state?.currentUser?.displayName;
 
-  useEffect(() => {
-    const getVideoData = async () => {
-      if (data?.video === undefined) return;
-      const vidData = await firebase
-        .database()
-        .ref(`videos/${data.video}`)
-        .once("value");
-      setVideoData(vidData.val());
-    };
-    getVideoData();
-  }, [data]);
-
-  const adminDequeue = async function (vidId: string, queuedBy: string) {
+  const adminDequeue = async function () {
+    if (!queueUser) return;
     setisDeleting(true);
-    await dequeueVideo(vidId, queuedBy);
+    await sendCommand("admin.queue.remove", { user: queueUser, queueItemId: data.queueItemId });
     setisDeleting(false);
   };
 
@@ -50,57 +41,53 @@ const VideoListing = ({
       ref={provided.innerRef}
     >
       {videoData == null ||
-        data?.queuedAt === undefined ||
-        data?.queuedAt === null ? (
+        data.queuedAt === undefined ? (
         <Spinner animation="border" />
       ) : (
         <>
           <p className="title">{videoData.title}</p>
           <div className="other-details">
             <p className="channel-title">
-              {videoData.channelTitle} - {convertDuration(videoData.duration)}
+              {videoData.channelTitle} - {convertDuration(videoData.durationSeconds)}
             </p>
-            <p className="displayName">{data.queuedByDisplayName}</p>
+            <p className="displayName">{displayName}</p>
           </div>
         </>
       )}
       <div className="button-row">
         {localQueue && (
           <Tooltipped tooltipText="Remove">
-            <Button
-              as="a"
-              className="delete"
-              variant="dark"
-              onClick={() => removeVideo(data.video)}
+            <button
+              type="button"
+              className="btn btn-dark delete"
+              onClick={() => removeVideo(data.queueItemId)}
             >
               <Delete />
-            </Button>
+            </button>
           </Tooltipped>
         )}
         {!localQueue && isAdmin && (
           <Tooltipped tooltipText="Remove">
-            <Button
-              as="a"
-              className="delete admin"
-              variant="dark"
-              onClick={() => adminDequeue(data.video, data.queuedBy)}
+            <button
+              type="button"
+              className="btn btn-dark delete admin"
+              onClick={adminDequeue}
             >
               {isDeleting ? <Spinner animation="border" /> : <Delete />}
-            </Button>
+            </button>
           </Tooltipped>
         )}
         {!localQueue && isAdmin && (
           <Tooltipped tooltipText="Open Toolbox">
-            <Button
-              as="a"
-              className="tools admin"
-              variant="dark"
+            <button
+              type="button"
+              className="btn btn-dark tools admin"
               onClick={() =>
-                openToolbox({ video: data.video, user: data.queuedBy })
+                openToolbox({ video: data.videoId, user: queueUser ?? null })
               }
             >
               <Assignment />
-            </Button>
+            </button>
           </Tooltipped>
         )}
       </div>
