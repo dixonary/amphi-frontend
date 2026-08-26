@@ -17,7 +17,7 @@ export type NowPlaying = {
 const NowPlayingProvider = ({ children }: any) => {
   const { state } = useContext(ServerContext);
   const playback = state?.currentVideo;
-  const queuedByDisplayName = playback ? state?.users[playback.queuerId]?.displayName ?? playback.queuerId : "";
+  const queuedByDisplayName = playback?.displayName ?? "";
   const nowPlaying = playback
     ? {
       video: playback.videoId,

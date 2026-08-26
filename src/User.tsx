@@ -69,7 +69,7 @@ const UserBox = () => {
       </Popover.Header>
       <Popover.Body>
         {displayNameError && <p className="text-danger small mb-3">{displayNameError}</p>}
-        <div className="user-detail"><span>Role</span><Badge bg={userData?.isAdmin ? "warning" : "secondary"} text={userData?.isAdmin ? "dark" : undefined}>{userData?.isAdmin ? "Admin" : "Member"}</Badge></div>
+        <div className="user-detail"><span>Role</span><Badge bg={userData?.isAdmin ? "warning" : "light"} text="dark">{userData?.isAdmin ? "Admin" : "Member"}</Badge></div>
         {suspendedUntil && <div className="user-detail user-suspension"><span>Queue access</span><strong>Until {new Date(suspendedUntil).toLocaleString()}</strong></div>}
       </Popover.Body>
     </Popover>

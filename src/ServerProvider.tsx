@@ -11,6 +11,7 @@ export type Video = {
 export type CurrentPlayback = {
   videoId: string;
   queuerId: string;
+  displayName: string;
   queuedAt: string;
   startedAt: string;
   durationSeconds: number;
@@ -45,7 +46,7 @@ export type PlaybackBucketItem = {
 
 export type HistoryEntry = {
   videoId: string;
-  queuerId: string;
+  queuerId?: string;
   queuedAt: string;
   playedAt: string;
 };

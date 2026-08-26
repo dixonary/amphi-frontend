@@ -44,7 +44,10 @@ const AdminSettings = () => {
             <section className="border-top mt-4 pt-4">
               <h6>Recently played</h6>
               <div className="list-group list-group-flush">
-                {state.history.slice(0, 15).map((entry) => <button type="button" className="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3 px-0" key={`${entry.videoId}-${entry.playedAt}`} onClick={() => openToolbox({ video: entry.videoId, user: entry.queuerId })}><span className="text-truncate">{state.videos[entry.videoId]?.title ?? entry.videoId}</span><span className="text-body-secondary flex-shrink-0">{state.users[entry.queuerId]?.displayName ?? entry.queuerId}</span></button>)}
+                {state.history.slice(0, 15).map((entry) => {
+                  const queuer = entry.queuerId ? state.users[entry.queuerId] : undefined;
+                  return <button type="button" className="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3 px-0" key={`${entry.videoId}-${entry.playedAt}`} onClick={() => openToolbox({ video: entry.videoId, user: entry.queuerId ?? null })}><span className="text-truncate">{state.videos[entry.videoId]?.title ?? entry.videoId}</span>{queuer && <span className="text-body-secondary flex-shrink-0">{queuer.displayName}</span>}</button>;
+                })}
               </div>
             </section>
             <section className="border-top mt-4 pt-4">

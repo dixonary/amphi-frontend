@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Alert, Spinner } from "react-bootstrap";
 import PlaylistAdd from "@mui/icons-material/PlaylistAdd";
 import convertDuration from "./ConvertDuration";
@@ -97,6 +97,7 @@ const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void })
   const video = state?.videos[videoId];
   const [loading, setLoading] = useState(false);
   const [failureMessage, setFailureMessage] = useState("");
+  const attemptedVideoId = useRef<string | null>(null);
   const alreadyQueued = Object.values(state?.queues ?? {}).some((queue) =>
     queue.some((item) => item.videoId === videoId)
   );
@@ -111,29 +112,40 @@ const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void })
       ? "Played too recently"
       : "";
 
-  const addOrQueue = async () => {
+  const loadVideo = useCallback(async () => {
     setLoading(true);
     setFailureMessage("");
-    if (!video) {
-      const result = await sendCommand("video.add", { videoId });
-      if (!result.ok) setFailureMessage("Unable to load this video.");
-    } else if (video.embeddable) {
-      const result = await sendCommand("queue.add", { videoId });
-      if (result.ok) {
-        reset();
-      } else if (result.code === "video_already_queued") {
-        setFailureMessage("This video is already in the playlist.");
-      } else if (result.code === "video_recently_played") {
-        setFailureMessage("This video was played too recently.");
-      } else {
-        setFailureMessage("Unable to add this video to the playlist.");
-      }
+    const result = await sendCommand("video.add", { videoId });
+    if (!result.ok) setFailureMessage("Unable to load this video.");
+    setLoading(false);
+  }, [sendCommand, videoId]);
+
+  useEffect(() => {
+    if (!video && attemptedVideoId.current !== videoId) {
+      attemptedVideoId.current = videoId;
+      void loadVideo();
+    }
+  }, [loadVideo, video, videoId]);
+
+  const queueVideo = async () => {
+    setLoading(true);
+    setFailureMessage("");
+    const result = await sendCommand("queue.add", { videoId });
+    if (result.ok) {
+      reset();
+    } else if (result.code === "video_already_queued") {
+      setFailureMessage("This video is already in the playlist.");
+    } else if (result.code === "video_recently_played") {
+      setFailureMessage("This video was played too recently.");
+    } else {
+      setFailureMessage("Unable to add this video to the playlist.");
     }
     setLoading(false);
   };
 
   return (
     <div className="video-details">
+      {!video && loading && <div className="d-flex align-items-center gap-2"><Spinner animation="border" size="sm" /><span>Loading video...</span></div>}
       {video && (
         <>
           <img className="thumbnail" src={video.thumbnailUrl} alt="" />
@@ -143,9 +155,9 @@ const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void })
           </div>
         </>
       )}
-      <button type="button" className={`btn enqueue-video ${video?.embeddable === false ? "btn-danger" : "btn-info"}`} onClick={addOrQueue} disabled={loading || video?.embeddable === false || Boolean(queueBlockMessage)}>
-        {loading ? <Spinner animation="border" /> : video?.embeddable === false ? "Video is not embeddable" : queueBlockMessage || (video ? <PlaylistAdd /> : "Load video")}
-      </button>
+      {video && <button type="button" className={`btn enqueue-video ${video.embeddable ? "btn-info" : "btn-danger"}`} onClick={queueVideo} disabled={loading || !video.embeddable || Boolean(queueBlockMessage)}>
+        {loading ? <Spinner animation="border" /> : video.embeddable ? queueBlockMessage || <PlaylistAdd /> : "Video is not embeddable"}
+      </button>}
       {failureMessage && <Alert variant="danger">{failureMessage}</Alert>}
     </div>
   );
