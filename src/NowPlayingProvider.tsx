@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
 import { ServerContext } from "./ServerProvider";
 
 const NowPlayingContext = React.createContext<NowPlaying | undefined>(
@@ -18,16 +18,20 @@ const NowPlayingProvider = ({ children }: any) => {
   const { state } = useContext(ServerContext);
   const playback = state?.currentVideo;
   const queuedByDisplayName = playback?.displayName ?? "";
-  const nowPlaying = playback
-    ? {
-      video: playback.videoId,
-      queuedBy: playback.queuerId,
-      seconds: playback.durationSeconds,
-      queuedAt: new Date(playback.queuedAt).getTime(),
-      startedAt: new Date(playback.startedAt).getTime(),
-      queuedByDisplayName,
-    }
-    : undefined;
+  const nowPlaying = useMemo(
+    () =>
+      playback
+        ? {
+            video: playback.videoId,
+            queuedBy: playback.queuerId,
+            seconds: playback.durationSeconds,
+            queuedAt: new Date(playback.queuedAt).getTime(),
+            startedAt: new Date(playback.startedAt).getTime(),
+            queuedByDisplayName,
+          }
+        : undefined,
+    [playback?.videoId, playback?.queuerId, playback?.durationSeconds, playback?.queuedAt, playback?.startedAt, queuedByDisplayName]
+  );
 
   return (
     <NowPlayingContext.Provider value={nowPlaying}>

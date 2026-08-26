@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { memo, useContext, useMemo } from "react";
 import YouTube from "react-youtube";
 import NoVideo from "./NoVideo";
 import { NowPlayingContext } from "./NowPlayingProvider";
@@ -10,7 +10,21 @@ const Player = () => {
     return <NoVideo />;
   }
 
-  const startSeconds = Math.max(0, Math.floor((Date.now() - nowPlaying.startedAt) / 1000));
+  const startSeconds = useMemo(
+    () => Math.max(0, Math.floor((Date.now() - nowPlaying.startedAt) / 1000)),
+    [nowPlaying.video, nowPlaying.startedAt]
+  );
+  const playerOptions = useMemo(
+    () => ({
+      height: "100%",
+      width: "100%",
+      playerVars: {
+        autoplay: 1,
+        start: startSeconds,
+      },
+    }),
+    [startSeconds]
+  );
 
   const startedPlaying = ({ target }: { target: any }) => {
 
@@ -39,15 +53,7 @@ const Player = () => {
       key={nowPlaying.video}
       videoId={nowPlaying.video}
       className="video-wrapper"
-      opts={{
-        height: "100%",
-        width: "100%",
-        playerVars: {
-          // https://developers.google.com/youtube/player_parameters
-          autoplay: 1,
-          start: startSeconds,
-        },
-      }}
+      opts={playerOptions}
       onPlay={startedPlaying}
       onStateChange={(event) => {
         // console.log("===Debug information===");
@@ -74,4 +80,4 @@ const Player = () => {
   );
 };
 
-export default Player;
+export default memo(Player);
