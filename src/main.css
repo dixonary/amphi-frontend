@@ -160,6 +160,7 @@ p.no-video {
 
 aside.sidebar {
   background-color: #2d3338;
+  color: #fff;
   display: flex;
   flex-direction: column;
   overflow: hidden;

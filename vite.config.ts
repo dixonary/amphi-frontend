@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      port: 3200,
       proxy: {
         "/auth": target,
         "/ws": { target, ws: true },
