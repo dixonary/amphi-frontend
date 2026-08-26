@@ -1,4 +1,5 @@
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import React from "react";
 import { Spinner } from "react-bootstrap";
 import VideoListing from "./VideoListing";
@@ -21,9 +22,13 @@ const Playlist = () => {
 
   return (
     <>
-      {bucketsArr.map((b: any, idx) => (
-        <Bucket bucket={b} key={idx} bucketIdx={idx} />
-      ))}
+      {(bucketsArr === null)
+        ? (<p>The global playlist is empty.</p>)
+        :
+        bucketsArr.map((b: any, idx) => (
+          <Bucket bucket={b} key={idx} bucketIdx={idx} />
+        ))
+      }
     </>
   );
 };
@@ -42,5 +47,6 @@ const Bucket = ({ bucket, bucketIdx }: any) => {
     </div>
   );
 };
+
 
 export default Playlist;

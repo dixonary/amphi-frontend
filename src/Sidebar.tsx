@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
   useMemo,
+  ReactNode,
 } from "react";
 import {
   Accordion,
@@ -13,26 +14,47 @@ import {
   Button,
   OverlayTrigger,
   Tooltip,
+  useAccordionButton,
 } from "react-bootstrap";
 import NewVideo from "./NewVideo";
 import MyQueue from "./MyQueue";
 import Playlist from "./Playlist";
-import QueueProvider from "./QueueProvider";
 import AdminToolbox from "./AdminToolbox";
 import { NowPlayingContext } from "./NowPlayingProvider";
 import { AdminToolsContext } from "./AdminToolsProvider";
-import firebase from "firebase";
-import { SkipNext, Assignment } from "@material-ui/icons";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
+import { SkipNext, Assignment, History } from "@mui/icons-material";
 import convertDuration from "./ConvertDuration";
 import { useObjectVal } from "react-firebase-hooks/database";
 import { UserContext, UserState } from "./UserProvider";
-import { Visibility } from "@material-ui/icons";
+import { Visibility } from "@mui/icons-material";
+import { RecentlyPlayedModal } from "./RecentlyPlayedModal";
+
+
+function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey: string, onclick?: () => void }) {
+  const decoratedOnClick = useAccordionButton(eventKey, () => {
+    if (onclick) onclick();
+  });
+
+  return (
+    // eslint-disable-next-line jsx-a11y/anchor-is-valid
+    <a
+      href="#"
+      style={{ display: "inline-block", flex: 1 }}
+      onClick={decoratedOnClick}
+    >
+      {children}
+    </a>
+  );
+}
 
 const Sidebar = () => {
   const user = useContext(UserContext);
   const [activeKey, setActiveKey] = useState("my-queue");
-  // const { isAdmin } = useContext(AdminToolsContext);
   const inputRef = useRef<HTMLElement>(null);
+
+  const [recentlyPlayedVisible, setRecentlyPlayedVisible] = useState(false);
 
   const focusInput = () =>
     inputRef.current !== null && inputRef.current.focus();
@@ -45,79 +67,78 @@ const Sidebar = () => {
     else setActiveKey(key);
   };
 
+
   return (
     <>
-      <QueueProvider>
-        <Accordion activeKey={activeKey.toString()}>
-          <Card bg="dark" className="now-playing">
-            <Card.Header>
-              <Accordion.Toggle as="a" eventKey="__">
-                <div className="now-playing-heading-flex">
-                  <span style={{ flex: 1 }}>Now Playing</span>
-                  <CurrentViewers />
-                  <CurrentSkips />
-                  <HasVoteskipped />
-                </div>
-              </Accordion.Toggle>
-            </Card.Header>
-            <Card.Body>
-              <NowPlayingSidebar />
-            </Card.Body>
-          </Card>
-          <Card bg="dark" className="playlist">
-            <Card.Header>
-              <Accordion.Toggle as="a" eventKey="__">
-                Playlist
-              </Accordion.Toggle>
-            </Card.Header>
-            <Card.Body>
-              <Playlist />
-            </Card.Body>
-          </Card>
-          {user.firebaseUser && (
-            <>
-              <Card bg="dark" className="my-queue">
-                <Card.Header>
-                  <Accordion.Toggle
-                    as="a"
-                    // variant="link"
-                    eventKey="my-queue"
-                    onClick={() => activate("my-queue")}
-                  >
-                    My Queue
-                  </Accordion.Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="my-queue">
-                  <Card.Body className="">
-                    <MyQueue />
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
+      <Accordion activeKey={activeKey.toString()}>
+        <Card bg="dark" className="now-playing">
+          <Card.Header>
+            <Toggle eventKey="__">
+              <div className="now-playing-heading-flex">
+                <span style={{ flex: 1, textAlign: "left" }}>Now Playing</span>
+                <CurrentViewers />
+                <CurrentSkips />
+                <HasVoteskipped />
+              </div>
+            </Toggle>
+          </Card.Header>
+          <Card.Body>
+            <NowPlayingSidebar />
+          </Card.Body>
+        </Card>
+        <Card bg="dark" className="playlist">
+          <Card.Header style={{ display: "flex" }}>
+            <Toggle eventKey="__">
+              <span style={{ display: "inline" }}>Playlist</span>
+            </Toggle>
+            {user.firebaseUser && (
+              <Tooltipped tooltipText="Recently Played"><Button className="history-btn" style={{ flex: 0 }} onClick={() => setRecentlyPlayedVisible(true)}><History /></Button></Tooltipped>)}
+          </Card.Header>
+          <Card.Body>
+            <Playlist />
+          </Card.Body>
+        </Card>
+        {user.firebaseUser && (
+          <>
+            <Card bg="dark" className="my-queue">
+              <Card.Header>
+                <Toggle
+                  eventKey="my-queue"
+                  onclick={() => activate("my-queue")}
+                >
+                  My Queue
+                </Toggle>
+              </Card.Header>
+              <Accordion.Collapse eventKey="my-queue">
+                <Card.Body className="">
+                  <MyQueue />
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
 
-              <Card bg="dark" className="new-video">
-                <Card.Header>
-                  <Accordion.Toggle
-                    as="a"
-                    // variant="link"
-                    eventKey="new-video"
-                    onClick={() => {
-                      activate("new-video");
-                    }}
-                  >
-                    Add a Song
-                  </Accordion.Toggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey="new-video">
-                  <Card.Body className="">
-                    <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            </>
-          )}
-        </Accordion>
-      </QueueProvider>
+            <Card bg="dark" className="new-video">
+              <Card.Header>
+                <Toggle
+                  eventKey="new-video"
+                  onclick={() => {
+                    activate("new-video");
+                  }}
+                >
+                  Add a Song
+                </Toggle>
+              </Card.Header>
+              <Accordion.Collapse eventKey="new-video">
+                <Card.Body className="">
+                  <NewVideo setAccordion={setActiveKey} inputRef={inputRef} />
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+          </>
+        )}
+      </Accordion>
       <AdminToolbox />
+      {user.userData !== undefined ? <RecentlyPlayedModal visible={recentlyPlayedVisible} closeRecentlyPlayed={() => setRecentlyPlayedVisible(false)} /> : <></>
+      }
     </>
   );
 };
@@ -318,5 +339,9 @@ const Tooltipped = ({ tooltipText, children }: any) => {
   );
 };
 
+
 export default Sidebar;
 export { Tooltipped };
+
+
+

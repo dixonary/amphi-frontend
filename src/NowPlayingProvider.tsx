@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import { useObjectVal } from "react-firebase-hooks/database/";
 
 const NowPlayingContext = React.createContext<NowPlaying | undefined>(
@@ -31,7 +32,8 @@ const NowPlayingProvider_ = ({ children }: any) => {
  * starts or stops a single song.
  */
 
-export const NowPlayingProviderMock = ({ children }: any) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const NowPlayingProviderMock = ({ children }: any) => {
 
   const [nowPlaying, setNowPlaying] = useState<NowPlaying | undefined>(undefined);
 

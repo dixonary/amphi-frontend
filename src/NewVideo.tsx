@@ -1,22 +1,22 @@
 import { useState, useEffect, useContext, useCallback, useMemo } from "react";
 import { Alert, Spinner, Button } from "react-bootstrap";
 import { useObjectVal } from "react-firebase-hooks/database";
-import { PlaylistAdd } from "@material-ui/icons";
+import { PlaylistAdd } from "@mui/icons-material";
 import React from "react";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 
 import convertDuration from "./ConvertDuration";
 import { UserContext } from "./UserProvider";
 import { QueueContext } from "./QueueProvider";
 import { AddPlaylistContext } from "./AddPlaylistProvider";
 
-// Regex for youtube playlist URLs
-const PLAYLIST_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
-
 // Regex for youtube video URLs
 const YT_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w-]+\?v=|embed\/|v\/)?)([\w-]{11})(\S+)?$/;
 // Regex for youtube IDs only
 const ID_REGEX = /^([\w-]{11})$/;
+// Regex for youtube playlist URLs
+const PLAYLIST_REGEX = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
 
 const NewVideo = ({ setAccordion, inputRef }: any) => {
   const [inputVal, setInputVal] = useState("");
@@ -24,7 +24,6 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
   const [videoId, setVideoId] = useState("");
   const [playlistId, setPlaylistId] = useState("");
   const user = useContext(UserContext);
-
 
   const updateVideoUrl = useCallback(async (newVal: string) => {
     let res;
@@ -63,12 +62,12 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
 
 
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setInputVal("");
     setVideoId("");
     setPlaylistId("");
     setAccordion("my-queue");
-  };
+  }, [setInputVal, setVideoId, setPlaylistId, setAccordion]);
 
 
   useEffect(() => {
@@ -77,7 +76,7 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
         console.log("Skipping auto paste");
         return;
       }
-      console.log(e.key);
+      // console.log(e.key);
       if (e.ctrlKey && !e.shiftKey && e.key === "v") {
         e.preventDefault();
         let clip = "";
@@ -165,13 +164,14 @@ const timeToDurationString = (then: number) => {
 };
 
 const PlaylistData = ({ playlistId, resetData }: any) => {
-  const playlistRef = firebase.database().ref(`playlists/${playlistId}`);
+  const playlistRef = useMemo(() => firebase.database().ref(`playlists/${playlistId}`), [playlistId]);
   const [playlistData, loading] = useObjectVal<any>(playlistRef);
-  const { addPlaylist, setAddPlaylist } = useContext(AddPlaylistContext);
+  const { setAddPlaylist } = useContext(AddPlaylistContext);
 
   // Tell the cloud about the new playlist ID we want populated
   // (But check if it's already been done first!)
   useEffect(() => {
+    if (!playlistRef) return;
     const runAsync = async () => {
       const currentState = (await playlistRef.once("value")).val();
       if (currentState === null) {
@@ -181,14 +181,13 @@ const PlaylistData = ({ playlistId, resetData }: any) => {
     runAsync();
   }, [playlistRef]);
 
-  const enqueue = useMemo(() => async () => {
-    if (playlistData === null) return;
-    if (addPlaylist) return;
+  const enqueue = useCallback(async () => {
+    if (!playlistData) return;
+    if (!playlistId) return;
 
     setAddPlaylist(playlistId);
-
     resetData();
-  }, [playlistData, resetData, addPlaylist, setAddPlaylist, playlistId]);
+  }, [playlistData, resetData, setAddPlaylist, playlistId]);
 
   useEffect(() => {
     const enterHandler = (e: KeyboardEvent) => {
@@ -214,23 +213,18 @@ const PlaylistData = ({ playlistId, resetData }: any) => {
   if (playlistData !== null) {
     return (
       <>
-        <div className="video-details">
-          <div className="info">
-            <p className="title">{playlistData.title}</p>
-            <p className="channel">{playlistData.channelTitle}</p>
-          </div>
-        </div>
 
         <Button
           as="a"
           onClick={enqueue}
           variant="info"
           className="enqueue-video"
+          style={{ marginTop: "1rem" }}
         >
           {playlistData?.loading ? (
             <Spinner animation="border" />
           ) : (
-            <PlaylistAdd />
+            <>Load music from playlist</>
           )}
         </Button>
       </>
@@ -238,10 +232,16 @@ const PlaylistData = ({ playlistId, resetData }: any) => {
   }
 };
 
+
 const VideoData = ({ videoId, resetData }: any) => {
   const videoRef = firebase.database().ref(`videos/${videoId}`);
   const [videoData, loading, error] = useObjectVal<any>(videoRef);
   const userQueue = useContext(QueueContext);
+
+  useEffect(() => {
+    console.log(videoData, loading, error);
+  }
+    , [videoData, loading, error]);
 
   // Tell the cloud about the new video ID we want populated
   // (But check if it's already been done first!)
@@ -255,7 +255,7 @@ const VideoData = ({ videoId, resetData }: any) => {
     runAsync();
   }, [videoRef]);
 
-  const enqueue = useMemo(() => async () => {
+  const enqueue = useCallback(async () => {
     if (videoData === null) return;
 
     const queue = userQueue.queue?.val() as any[] | undefined | null;
@@ -272,7 +272,7 @@ const VideoData = ({ videoId, resetData }: any) => {
 
     await userQueue.enqueueVideo(videoId);
     resetData();
-  }, [resetData, userQueue, videoData, videoId]);
+  }, [userQueue, videoData, videoId, resetData]);
 
   useEffect(() => {
     const enterHandler = (e: KeyboardEvent) => {

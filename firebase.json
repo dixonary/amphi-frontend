@@ -8,6 +8,10 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },  
+  "functions": {
+    "path": "functions",
+    "predeploy": "cd functions && npm run build"
   },
   "hosting": {
     "public": "build",

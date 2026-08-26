@@ -9,9 +9,11 @@ import {
 } from "react-bootstrap";
 import { AdminToolsContext } from "./AdminToolsProvider";
 import ModalHeader from "react-bootstrap/ModalHeader";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import convertDuration from "./ConvertDuration";
 import { useObjectVal } from "react-firebase-hooks/database";
+import { Close } from "@mui/icons-material";
 
 /** This modal dialog shows up when an administrator wishes to
  *  make major moves based on a
@@ -32,13 +34,15 @@ const AdminToolbox = () => {
 
   return (
     <Modal
-      onShow={() => {}}
-      onHide={() => {}}
+      onShow={() => { }}
+      onHide={() => { }}
       show={toolboxData.video !== null || toolboxData.user !== null}
     >
       <ModalHeader>
         <ModalTitle>Toolbox</ModalTitle>
-        <CloseButton onClick={closeToolbox} />
+        <CloseButton onClick={closeToolbox}>
+          <Close />
+        </CloseButton>
       </ModalHeader>
       <ModalBody>
         {isAdmin || (

@@ -16,6 +16,7 @@ const Main = () => {
       as="main"
       className={`flex-column text-light ${modeClass(currentMode)}`}
     >
+      <AddPlaylistModal />
       <AdminSettings />
       <AddPlaylistModal />
       <Row className="main-row">

@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Delete, Assignment } from "@material-ui/icons";
+import { Delete, Assignment } from "@mui/icons-material";
 import { Spinner, Button } from "react-bootstrap";
 
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 
 import convertDuration from "./ConvertDuration";
 import { QueueContext } from "./QueueProvider";
@@ -49,8 +50,8 @@ const VideoListing = ({
       ref={provided.innerRef}
     >
       {videoData == null ||
-      data?.queuedAt === undefined ||
-      data?.queuedAt === null ? (
+        data?.queuedAt === undefined ||
+        data?.queuedAt === null ? (
         <Spinner animation="border" />
       ) : (
         <>

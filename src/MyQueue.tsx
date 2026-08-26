@@ -1,43 +1,44 @@
 import { Spinner } from "react-bootstrap";
 import React, { useContext } from "react";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
-import { useAuthState }         from "react-firebase-hooks/auth";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import VideoListing from "./VideoListing";
-import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd'; 
+import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { QueueContext, VidInfo } from "./QueueProvider";
 
 const MyQueue = () => {
-  const [ user ] = useAuthState(firebase.auth());
+  const [user] = useAuthState(firebase.auth());
   return (!user
     ? (<p>Sign in to see your queue.</p>)
     : (<UserQueue user={user} />)
   );
 };
 
-const UserQueue = ({user}:{user:firebase.User}) => {
-  const {queue, moveVideo} = useContext(QueueContext);
+const UserQueue = ({ user }: { user: firebase.User }) => {
+  const { queue, moveVideo } = useContext(QueueContext);
 
-  const reorderList = async ({source, destination, draggableId}:any) => {
-    if(!destination) return;
-    if(source === destination) return;
+  const reorderList = async ({ source, destination, draggableId }: any) => {
+    if (!destination) return;
+    if (source === destination) return;
 
     await moveVideo(draggableId, destination.index)
   };
 
-  if(queue === undefined) {
+  if (queue === undefined) {
     return (<Spinner animation="border" />);
   }
   const queueVal = queue.val() as VidInfo[] | null;
 
-  if(queueVal === null || queue.numChildren() === 0) {
+  if (queueVal === null || queue.numChildren() === 0) {
     return (<p>Your queue is empty.</p>);
   }
-  
+
   return (
     <DragDropContext
-      onDragEnd = {reorderList}
+      onDragEnd={reorderList}
     >
       <Droppable droppableId="myQueue">
         {(provided) => (
@@ -45,11 +46,11 @@ const UserQueue = ({user}:{user:firebase.User}) => {
             {...provided.droppableProps}
             ref={provided.innerRef}
           >
-            {queueVal.map((v:any, idx:number) => (
+            {queueVal.map((v: any, idx: number) => (
               <Draggable
                 draggableId={v.video}
                 index={idx}
-                key={v.video??undefined}
+                key={v.video ?? undefined}
               >
                 {(provided) => (
                   <VideoListing provided={provided} data={v} localQueue={true} />

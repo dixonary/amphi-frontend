@@ -24,7 +24,7 @@ const Spin = () => {
 
   // Rotate mesh every frame, this is outside of React without overhead
   useFrame((state, delta) => {
-    if (group?.current !== null) {
+    if (group?.current) {
       group.current.rotation.y += delta;
     }
   });
@@ -32,14 +32,14 @@ const Spin = () => {
   new STLLoader().load(
     process.env.PUBLIC_URL + "/amphi.stl",
     (bufferGeometry) => {
-      if (mesh.current === null) return;
+      if (!mesh.current) return;
       mesh.current.geometry = bufferGeometry;
 
       var linesMat = new LineBasicMaterial({ color: 0x343a40 });
       var edges = new EdgesGeometry(bufferGeometry);
       var lines = new LineSegments(edges, linesMat);
 
-      if (group.current !== null)
+      if (group.current)
         group.current.add(lines);
 
       mesh.current.position.z = -5;

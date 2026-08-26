@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, useState, useRef, useMemo } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import firebase from "firebase";
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/database';
 import {
   Navbar,
   Tooltip,
@@ -13,14 +14,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./main.css";
 
 import Main from "./Main";
-import { UserBox, LoginCallback, AdminButton } from "./User";
+import { UserBox, LoginCallback, BespokeLoginCallback, AdminButton } from "./User";
 import { UserProvider } from "./UserProvider";
 import AdminToolsProvider, { AdminToolsContext } from "./AdminToolsProvider";
 import { NowPlayingProvider, NowPlayingContext } from "./NowPlayingProvider";
-import { Close, Settings, CenterFocusStrong } from "@material-ui/icons";
+import { Close, Settings, CenterFocusStrong } from "@mui/icons-material";
 import { Mode, modeClass, ModeContext, ModeProvider } from "./ModeProvider";
 import { Tooltipped } from "./Sidebar";
 import { AddPlaylistProvider } from "./AddPlaylistProvider";
+import QueueProvider from "./QueueProvider";
 
 /******************************************************************************/
 /* Constants */
@@ -41,16 +43,18 @@ function App() {
   return (
     <Router>
       <ModeProvider>
-        <AddPlaylistProvider>
-          <NowPlayingProvider>
-            <UserProvider>
-              <AdminToolsProvider>
-                <Header />
-                <Main />
-              </AdminToolsProvider>
-            </UserProvider>
-          </NowPlayingProvider>
-        </AddPlaylistProvider>
+        <NowPlayingProvider>
+          <UserProvider>
+            <QueueProvider>
+              <AddPlaylistProvider>
+                <AdminToolsProvider>
+                  <Header />
+                  <Main />
+                </AdminToolsProvider>
+              </AddPlaylistProvider>
+            </QueueProvider>
+          </UserProvider>
+        </NowPlayingProvider>
       </ModeProvider>
     </Router>
   );
@@ -73,10 +77,9 @@ const Header = () => {
         <Navbar.Collapse>
           <NowPlayingText />
           <Routes>
-            <Route path="/auth/login/*" element={<LoginCallback />}>
-            </Route>
-            <Route path="/" element={<UserBox />}>
-            </Route>
+            <Route path="/auth/login/*" element={<LoginCallback />} />
+            <Route path="/auth/bespoke-login/*" element={<BespokeLoginCallback />} />
+            <Route path="/" element={<UserBox />} />
           </Routes>
         </Navbar.Collapse>
       </Navbar>
