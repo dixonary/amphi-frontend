@@ -19,7 +19,7 @@ const QueueProvider = ({ children }: any) => {
   };
 
   const moveVideo = async (queueItemId: number, position: number) => {
-    await sendCommand("queue.move", { queueItemId, position });
+    return (await sendCommand("queue.move", { queueItemId, position })).ok;
   };
 
   const obj = { queue, enqueueVideo, enqueueAll, removeVideo, moveVideo }
@@ -35,7 +35,7 @@ type QueueInfo = {
   enqueueVideo: (videoId: string) => Promise<void>;
   enqueueAll: (videoIds: string[]) => Promise<void>;
   removeVideo: (queueItemId: number) => Promise<void>;
-  moveVideo: (queueItemId: number, position: number) => Promise<void>;
+  moveVideo: (queueItemId: number, position: number) => Promise<boolean>;
 };
 
 // An empty default value.
@@ -44,7 +44,7 @@ const noQueueInfo: QueueInfo = {
   enqueueVideo: async () => { },
   enqueueAll: async () => { },
   removeVideo: async () => { },
-  moveVideo: async () => { },
+  moveVideo: async () => false,
 };
 
 // A context sentinel for React to use.
