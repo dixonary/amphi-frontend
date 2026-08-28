@@ -516,6 +516,9 @@ p.display-name {
 .btn.delete:active {
   color: var(--yellow);
 }
+.btn.video-link {
+  color: var(--yellow);
+}
 .button-row:hover .btn {
   opacity: 1;
 }

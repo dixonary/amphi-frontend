@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import Delete from "@mui/icons-material/Delete";
 import Assignment from "@mui/icons-material/Assignment";
+import OpenInNew from "@mui/icons-material/OpenInNew";
 import { Spinner } from "react-bootstrap";
 
 import convertDuration from "./ConvertDuration";
@@ -49,21 +50,24 @@ const VideoListing = ({
           <div className="other-details">
             <p className="channel-title">
               {videoData.channelTitle} - {convertDuration(videoData.durationSeconds)}
-              {" - "}
-              <a
-                href={`https://www.youtube.com/watch?v=${data.videoId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(event) => event.stopPropagation()}
-              >
-                {data.videoId}
-              </a>
             </p>
             <p className="displayName">{displayName}</p>
           </div>
         </>
       )}
       <div className="button-row">
+        <Tooltipped tooltipText="Open on YouTube">
+          <a
+            className="btn btn-dark video-link"
+            href={`https://www.youtube.com/watch?v=${data.videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
+            aria-label="Open on YouTube"
+          >
+            <OpenInNew />
+          </a>
+        </Tooltipped>
         {localQueue && (
           <Tooltipped tooltipText="Remove">
             <button
