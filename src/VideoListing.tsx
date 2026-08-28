@@ -49,6 +49,15 @@ const VideoListing = ({
           <div className="other-details">
             <p className="channel-title">
               {videoData.channelTitle} - {convertDuration(videoData.durationSeconds)}
+              {" - "}
+              <a
+                href={`https://www.youtube.com/watch?v=${data.videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {data.videoId}
+              </a>
             </p>
             <p className="displayName">{displayName}</p>
           </div>
