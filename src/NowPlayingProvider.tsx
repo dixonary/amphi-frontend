@@ -22,13 +22,13 @@ const NowPlayingProvider = ({ children }: any) => {
     () =>
       playback
         ? {
-            video: playback.videoId,
-            queuedBy: playback.queuerId,
-            seconds: playback.durationSeconds,
-            queuedAt: new Date(playback.queuedAt).getTime(),
-            startedAt: new Date(playback.startedAt).getTime(),
-            queuedByDisplayName,
-          }
+          video: playback.videoId,
+          queuedBy: playback.queuerId,
+          seconds: playback.durationSeconds,
+          queuedAt: new Date(playback.queuedAt).getTime(),
+          startedAt: new Date(playback.startedAt).getTime(),
+          queuedByDisplayName,
+        }
         : undefined,
     [playback?.videoId, playback?.queuerId, playback?.durationSeconds, playback?.queuedAt, playback?.startedAt, queuedByDisplayName]
   );

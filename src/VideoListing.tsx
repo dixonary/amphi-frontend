@@ -56,18 +56,6 @@ const VideoListing = ({
         </>
       )}
       <div className="button-row">
-        <Tooltipped tooltipText="Open on YouTube">
-          <a
-            className="btn btn-dark video-link"
-            href={`https://www.youtube.com/watch?v=${data.videoId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(event) => event.stopPropagation()}
-            aria-label="Open on YouTube"
-          >
-            <OpenInNew />
-          </a>
-        </Tooltipped>
         {localQueue && (
           <Tooltipped tooltipText="Remove">
             <button
@@ -103,6 +91,18 @@ const VideoListing = ({
             </button>
           </Tooltipped>
         )}
+        <Tooltipped tooltipText="Open on YouTube">
+          <a
+            className="btn btn-dark video-link"
+            href={`https://www.youtube.com/watch?v=${data.videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
+            aria-label="Open on YouTube"
+          >
+            <OpenInNew />
+          </a>
+        </Tooltipped>
       </div>
     </div>
   );

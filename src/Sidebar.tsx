@@ -28,6 +28,7 @@ import { UserContext } from "./UserProvider";
 import Visibility from "@mui/icons-material/Visibility";
 import { RecentlyPlayedModal } from "./RecentlyPlayedModal";
 import { ServerContext } from "./ServerProvider";
+import OpenInNew from "@mui/icons-material/OpenInNew";
 
 
 function Toggle({ children, eventKey, onclick }: { children: ReactNode, eventKey: string, onclick?: () => void }) {
@@ -217,6 +218,18 @@ const NowPlayingSidebar = () => {
             </button>
           </Tooltipped>
         )}
+        <Tooltipped tooltipText="Open on YouTube">
+          <a
+            className="btn btn-dark video-link"
+            href={`https://www.youtube.com/watch?v=${nowPlaying.video}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
+            aria-label="Open on YouTube"
+          >
+            <OpenInNew />
+          </a>
+        </Tooltipped>
       </div>
     </>
   );

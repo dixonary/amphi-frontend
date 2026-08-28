@@ -76,12 +76,12 @@ export const PlaylistSelection = ({ playlistData, close }: { playlistData: strin
     <div className="playlist-selection">
       <div className="playlist-selection-list">
         <ul>
-        {playlistData === undefined || playlistData === null
-          ? <Spinner animation="border" />
-          : selected.map((v: { v: string, enabled: boolean }) => (
-            <PlaylistItem key={v.v} vid={v.v} selected={v.enabled} setSel={setSel} />
-          ))
-        }
+          {playlistData === undefined || playlistData === null
+            ? <Spinner animation="border" />
+            : selected.map((v: { v: string, enabled: boolean }) => (
+              <PlaylistItem key={v.v} vid={v.v} selected={v.enabled} setSel={setSel} />
+            ))
+          }
         </ul>
       </div>
       <button type="button" className="btn btn-info playlist-selection-submit" onClick={enqueueAll}>
