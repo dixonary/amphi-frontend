@@ -533,11 +533,55 @@ p.now-playing {
   align-items: center;
   padding-left: 0;
 }
-.modal-body .form-check-input {
-  margin: 0;
-  margin-right: 0.5rem;
+.playlist-modal-body {
+  display: flex;
+  flex-direction: column;
+  height: min(70vh, 42rem);
+  max-height: 70vh;
   padding: 0;
-  position: static;
+  overflow: hidden;
+}
+
+.playlist-selection {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.playlist-selection-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.playlist-selection-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.playlist-selection-submit {
+  flex: 0 0 auto;
+  margin: 0 1rem 1rem;
+}
+
+.playlist-selection-toggle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-left: 1rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--yellow);
+}
+
+.playlist-selection-toggle svg {
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .horz {
@@ -654,14 +698,6 @@ p.now-playing {
 .modal-body .unban:hover {
   color: cornflowerblue;
 }
-
-input[type="checkbox"] {
-  width: 1.5rem;
-  height: 1.5rem;
-  vertical-align: middle;
-  background: #222528;
-}
-
 
 .admin-settings .numeric-control {
   display: flex;

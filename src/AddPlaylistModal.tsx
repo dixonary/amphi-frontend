@@ -1,5 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { InputGroup, Modal, Spinner } from 'react-bootstrap';
+import CheckBox from '@mui/icons-material/CheckBox';
+import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank';
 import { AddPlaylistContext } from './AddPlaylistProvider';
 import convertDuration from './ConvertDuration';
 import { QueueContext } from './QueueProvider';
@@ -23,7 +25,7 @@ export const AddPlaylistModal = () => {
       <Modal.Header closeButton>
         <Modal.Title>Add Songs From Playlist</Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ overflow: "hidden", padding: "0" }} >
+      <Modal.Body className="playlist-modal-body">
         <RenderPlaylist playlistId={addPlaylist!} close={close} />
       </Modal.Body>
     </Modal>
@@ -71,20 +73,21 @@ export const PlaylistSelection = ({ playlistData, close }: { playlistData: strin
   }, [userQueue, selected, close]);
 
   return (
-    <>
-      <div style={{ overflowY: "auto", height: "100%", padding: "1em", paddingBottom: "3.5em" }}> <ul style={{ paddingLeft: 0 }}>
+    <div className="playlist-selection">
+      <div className="playlist-selection-list">
+        <ul>
         {playlistData === undefined || playlistData === null
           ? <Spinner animation="border" />
           : selected.map((v: { v: string, enabled: boolean }) => (
             <PlaylistItem key={v.v} vid={v.v} selected={v.enabled} setSel={setSel} />
           ))
         }
-      </ul>
+        </ul>
       </div>
-      <button type="button" className="btn btn-info" style={{ position: "absolute", bottom: "1em", left: "50%", transform: "translateX(-50%)" }} onClick={enqueueAll}>
+      <button type="button" className="btn btn-info playlist-selection-submit" onClick={enqueueAll}>
         Add all selected songs to queue
       </button>
-    </>
+    </div>
   );
 
 };
@@ -114,9 +117,10 @@ const PlaylistItem = ({ vid, selected, setSel }: { vid: string, selected: boolea
 
             </div>
           </>)}
-        <input className="form-check-input ms-auto" type="checkbox" checked={selected} onClick={(event) => event.stopPropagation()} onChange={(event) => setSel(vid, event.target.checked)} aria-label={`Select ${videoData?.title ?? vid}`} />
+        <button className="playlist-selection-toggle ms-auto" type="button" onClick={(event) => { event.stopPropagation(); setSel(vid, !selected); }} aria-label={`${selected ? "Deselect" : "Select"} ${videoData?.title ?? vid}`} aria-pressed={selected}>
+          {selected ? <CheckBox /> : <CheckBoxOutlineBlank />}
+        </button>
       </InputGroup>
-      {/* Todo: Checkboxes for each video */}
     </div >
   );
 };
