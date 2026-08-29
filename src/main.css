@@ -399,15 +399,16 @@ a.btn.blocky {
   display:flex;
   flex-direction:column;
   flex-wrap: wrap;
-  align-items:center;
-  justify-content:stretch;
+  align-items:stretch;
+  justify-content:center;
+  gap:1em;
 }
 .new-video .video-info {
   display:flex;
   flex-direction:row;
   gap:2;
 }
-.view-playlist .new-video .video-details img.thumbnail {
+.view-playlist .new-video .video-info img.thumbnail {
   aspect-ratio: 1 / 1;
   max-width:calc(15rem);
   margin-right:1rem;
