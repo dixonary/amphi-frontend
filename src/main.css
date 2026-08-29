@@ -450,7 +450,6 @@ a.btn.blocky {
 }
 
 .video-details img.thumbnail {
-  width: 100%;
   height: 90px;
   object-fit: cover;
 }
