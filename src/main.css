@@ -394,7 +394,7 @@ a.btn.blocky {
   margin-bottom: 0;
 }
 
-.view-playlist .new-video .video-details {
+.new-video .video-details {
   margin-top:0.5rem;
   display:flex;
   flex-direction:column;
