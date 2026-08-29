@@ -153,10 +153,12 @@ const VideoAction = ({ videoId, reset }: { videoId: string; reset: () => void })
       {!video && loading && <div className="d-flex align-items-center gap-2"><Spinner animation="border" size="sm" /><span>Loading video...</span></div>}
       {video && (
         <>
-          <img className="thumbnail" src={video.thumbnailUrl} alt="" />
-          <div className="info">
-            <p className="title">{video.title}</p>
-            <p className="channel">{video.channelTitle} - {convertDuration(video.durationSeconds)}</p>
+          <div className="video-info">
+            <img className="thumbnail" src={video.thumbnailUrl} alt="" />
+            <div className="info">
+              <p className="title">{video.title}</p>
+              <p className="channel">{video.channelTitle} - {convertDuration(video.durationSeconds)}</p>
+            </div>
           </div>
         </>
       )}
