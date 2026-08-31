@@ -10,6 +10,8 @@ const VIDEO_URL = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|yout
 const VIDEO_ID = /^([\w-]{11})$/;
 const PLAYLIST_URL = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com)(\/playlist(\?list=)?)([\w-]+)(\S+)?$/;
 
+const isYouTubeLink = (value: string) => VIDEO_URL.test(value) || PLAYLIST_URL.test(value);
+
 const NewVideo = ({ setAccordion, inputRef }: any) => {
   const [inputValue, setInputValue] = useState("");
   const [videoId, setVideoId] = useState("");
@@ -44,24 +46,17 @@ const NewVideo = ({ setAccordion, inputRef }: any) => {
   }, [setAccordion]);
 
   useEffect(() => {
-    const pasteHandler = async (event: KeyboardEvent) => {
-      if (inputRef.current?.id === document.activeElement?.id) {
-        return;
-      }
-      if (event.ctrlKey && !event.shiftKey && event.key === "v") {
+    const pasteHandler = (event: ClipboardEvent) => {
+      const clipboardText = event.clipboardData?.getData("text/plain");
+      if (clipboardText && isYouTubeLink(clipboardText)) {
         event.preventDefault();
-        try {
-          updateInput(await navigator.clipboard.readText());
-          setAccordion("new-video");
-        } catch {
-          setAccordion("new-video");
-          window.setTimeout(() => inputRef.current?.focus(), 1);
-        }
+        updateInput(clipboardText);
+        setAccordion("new-video");
       }
     };
 
-    window.addEventListener("keydown", pasteHandler);
-    return () => window.removeEventListener("keydown", pasteHandler);
+    window.addEventListener("paste", pasteHandler);
+    return () => window.removeEventListener("paste", pasteHandler);
   }, [inputRef, setAccordion, updateInput]);
 
   if (!currentUser) {
